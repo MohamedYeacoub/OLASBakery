@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" id="html-root">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ola's Bakery – مخبز عُلا</title>
+  <meta name="description" content="Artisan baked goods delivered fresh to your door. Discover our collection of croissants, cakes, breads, and pastries. | خبز حرفي طازج يصل إلى بابك." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-brand" onclick="showPage('home',null)">
+      <!-- Fantasy SVG Logo -->
+      <svg class="brand-svg-logo" viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg" aria-label="Ola's Bakery Logo">
+        <circle cx="28" cy="28" r="26" fill="none" stroke="url(#logoGold)" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.7"/>
+        <circle cx="28" cy="28" r="22" fill="url(#logoBg)" />
+        <path d="M20 22 L22 17 L25 21 L28 15 L31 21 L34 17 L36 22 Z" fill="url(#logoGold)" stroke="#b8832a" stroke-width="0.5"/>
+        <path d="M16 32 Q18 26 28 28 Q38 30 40 32 Q38 38 28 36 Q18 38 16 32Z" fill="url(#logoCroissant)" />
+        <path d="M20 30 Q24 27 30 29" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1.2" stroke-linecap="round"/>
+        <circle cx="10" cy="38" r="1.2" fill="#E5C158" opacity="0.8"/>
+        <circle cx="46" cy="36" r="0.9" fill="#E5C158" opacity="0.7"/>
+        <circle cx="8" cy="22" r="0.8" fill="#E5C158" opacity="0.6"/>
+        <path d="M44 20 L44.5 18 L45 20 L47 20.5 L45 21 L44.5 23 L44 21 L42 20.5 Z" fill="#E5C158" opacity="0.9"/>
+        <defs>
+          <linearGradient id="logoGold" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#E5C158"/>
+            <stop offset="100%" stop-color="#C9963A"/>
+          </linearGradient>
+          <radialGradient id="logoBg" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#4A3728"/>
+            <stop offset="100%" stop-color="#2A1C14"/>
+          </radialGradient>
+          <linearGradient id="logoCroissant" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#E5C158"/>
+            <stop offset="50%" stop-color="#C9963A"/>
+            <stop offset="100%" stop-color="#9a6b22"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      <div class="brand-name-wrap">
+        <span class="brand-name" data-en="Ola's Bakery" data-ar="مخبز عُلا">Ola's Bakery</span>
+        <span class="brand-tagline" data-en="Est. 2010" data-ar="منذ ٢٠١٠">Est. 2010</span>
+      </div>
+    </div>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="#" class="nav-link active" data-page="home" onclick="showPage('home',this);return false" data-en="Home" data-ar="الرئيسية">Home</a></li>
+      <li><a href="#" class="nav-link" data-page="products" onclick="showPage('products',this);return false" data-en="Menu" data-ar="القائمة">Menu</a></li>
+      <li><a href="#" class="nav-link" data-page="orders" onclick="showPage('orders',this);return false" data-en="My Orders" data-ar="طلباتي">My Orders</a></li>
+      <li><a href="#" class="nav-link" data-page="admin" onclick="showPage('admin',this);return false" data-en="Admin Portal" data-ar="لوحة التحكم">Admin Portal</a></li>
+      <li><a href="#" class="nav-link" data-page="login" onclick="showPage('login',this);return false" id="nav-auth-link" data-en="Sign In" data-ar="تسجيل الدخول">Sign In</a></li>
+    </ul>
+    <div class="nav-right">
+      <!-- Cloud DB Status Pill -->
+      <span class="cloud-badge-online" id="cloud-status-badge" onclick="showPage('admin',document.querySelector('[data-page=admin]'));switchAdminTab('clouddb',document.getElementById('tab-btn-clouddb'));" title="Free Cloud Database Status">🟢 Cloud DB Online</span>
+
+      <!-- Loyalty Points Pill -->
+      <div class="loyalty-pill" onclick="openLoyaltyModal()" title="Ola Golden Crumbs Rewards">
+        <span class="loyalty-icon">✨</span>
+        <span id="nav-loyalty-pts">340</span>
+        <span class="loyalty-label" data-en="Pts" data-ar="نقطة">Pts</span>
+      </div>
+
+      <!-- Notifications Bell -->
+      <div class="notif-wrapper">
+        <button class="icon-btn" id="notif-btn" onclick="toggleNotifPanel(event)" title="Notifications">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+            <path d="M13.73 21a2 2 0 01-3.46 0"></path>
+          </svg>
+          <span class="notif-badge" id="notif-badge">2</span>
+        </button>
+        <div class="notif-dropdown" id="notif-dropdown">
+          <div class="notif-header">
+            <h4 data-en="Notifications" data-ar="الإشعارات">Notifications</h4>
+            <button class="notif-clear-btn" onclick="clearNotifications()" data-en="Mark all read" data-ar="تحديد كـ مقروء">Mark all read</button>
+          </div>
+          <div class="notif-list" id="notif-list">
+            <!-- Populated via JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Language Toggle -->
+      <button class="lang-toggle" id="lang-toggle" onclick="toggleLang()" title="Switch Language">
+        <span class="lang-icon">🌐</span>
+        <span id="lang-label">عربي</span>
+      </button>
+
+      <!-- Cart Button -->
+      <button class="cart-btn" id="cart-btn" onclick="showPage('cart',null)">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <path d="M16 10a4 4 0 01-8 0"/>
+        </svg>
+        <span class="cart-badge" id="cart-badge">0</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ==================== PAGES ==================== -->
+
+  <!-- HOME PAGE -->
+  <div id="page-home" class="page active">
+    <!-- Hero -->
+    <section class="hero">
+      <div class="hero-content">
+        <p class="hero-eyebrow" data-en="Artisan · Handcrafted · Fresh Daily" data-ar="حرفي · مصنوع بالحب · طازج يومياً">Artisan · Handcrafted · Fresh Daily</p>
+        <h1 class="hero-title"><span data-en="Freshly Baked" data-ar="خبز طازج">Freshly Baked</span><br/><em data-en="Happiness" data-ar="من القلب">Happiness</em></h1>
+        <p class="hero-subtitle" data-en="From our oven to your table — discover premium pastries, breads, and cakes made with love and the finest ingredients." data-ar="من فرننا إلى مائدتك — اكتشف أجود المعجنات والخبز والكيك المصنوعة بحب وأرقى المكونات.">From our oven to your table — discover premium pastries, breads, and cakes made with love and the finest ingredients.</p>
+        <div class="hero-actions">
+          <button class="btn-primary" onclick="showPage('products',document.querySelector('[data-page=products]'))" data-en="Shop Now" data-ar="تسوق الآن">Shop Now</button>
+          <button class="btn-ghost" onclick="document.getElementById('about-section').scrollIntoView({behavior:'smooth'})" data-en="Our Story" data-ar="قصتنا">Our Story</button>
+        </div>
+        <div class="hero-stats">
+          <div class="stat"><span class="stat-num">50+</span><span class="stat-label" data-en="Recipes" data-ar="وصفة">Recipes</span></div>
+          <div class="stat-divider"></div>
+          <div class="stat"><span class="stat-num">10K+</span><span class="stat-label" data-en="Happy Customers" data-ar="عميل سعيد">Happy Customers</span></div>
+          <div class="stat-divider"></div>
+          <div class="stat"><span class="stat-num">5★</span><span class="stat-label" data-en="Rating" data-ar="تقييم">Rating</span></div>
+        </div>
+      </div>
+      <div class="hero-image-wrap">
+        <img src="images/bakery_hero.jpg" alt="Artisan Bakery Spread" class="hero-img" />
+        <div class="hero-badge">
+          <span class="badge-icon">✨</span>
+          <div>
+            <div class="badge-title" data-en="Fresh Today" data-ar="طازج اليوم">Fresh Today</div>
+            <div class="badge-sub" data-en="Baked at 5am daily" data-ar="يُخبز الساعة ٥ صباحاً">Baked at 5am daily</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Categories -->
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title" data-en="Our Categories" data-ar="تصنيفاتنا">Our Categories</h2>
+        <p class="section-sub" data-en="Something delicious for every craving" data-ar="شيء لذيذ لكل رغبة">Something delicious for every craving</p>
+      </div>
+      <div class="categories-grid">
+        <div class="category-card" onclick="goToCategory('Pastries')">
+          <div class="cat-icon" style="background:linear-gradient(135deg,#f6d365,#fda085)">🥐</div>
+          <span class="cat-name" data-en="Pastries" data-ar="معجنات">Pastries</span>
+        </div>
+        <div class="category-card" onclick="goToCategory('Cakes')">
+          <div class="cat-icon" style="background:linear-gradient(135deg,#a18cd1,#fbc2eb)">🎂</div>
+          <span class="cat-name" data-en="Cakes" data-ar="كيك">Cakes</span>
+        </div>
+        <div class="category-card" onclick="goToCategory('Breads')">
+          <div class="cat-icon" style="background:linear-gradient(135deg,#d4a96a,#8b5e3c)">🍞</div>
+          <span class="cat-name" data-en="Breads" data-ar="خبز">Breads</span>
+        </div>
+        <div class="category-card" onclick="goToCategory('Cookies')">
+          <div class="cat-icon" style="background:linear-gradient(135deg,#f093fb,#f5576c)">🍪</div>
+          <span class="cat-name" data-en="Cookies" data-ar="كوكيز">Cookies</span>
+        </div>
+        <div class="category-card" onclick="goToCategory('Drinks')">
+          <div class="cat-icon" style="background:linear-gradient(135deg,#4facfe,#00f2fe)">☕</div>
+          <span class="cat-name" data-en="Drinks" data-ar="مشروبات">Drinks</span>
+        </div>
+        <div class="category-card" onclick="goToCategory('Seasonal')">
+          <div class="cat-icon" style="background:linear-gradient(135deg,#43e97b,#38f9d7)">🌸</div>
+          <span class="cat-name" data-en="Seasonal" data-ar="موسمي">Seasonal</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Best Sellers -->
+    <section class="section bg-cream">
+      <div class="section-header">
+        <h2 class="section-title" data-en="Best Sellers" data-ar="الأكثر مبيعاً">Best Sellers</h2>
+        <p class="section-sub" data-en="Customer favorites, freshly baked every morning" data-ar="المفضلة لدى عملائنا، تُخبز كل صباح">Customer favorites, freshly baked every morning</p>
+      </div>
+      <div class="products-grid" id="bestsellers-grid"></div>
+    </section>
+
+    <!-- About -->
+    <section class="about-section" id="about-section">
+      <div class="about-text">
+        <p class="section-eyebrow" data-en="Our Story" data-ar="قصتنا">Our Story</p>
+        <h2 class="about-title"><span data-en="Baked with passion" data-ar="نخبز بشغف">Baked with passion</span><br/><span data-en="since 2010" data-ar="منذ ٢٠١٠">since 2010</span></h2>
+        <p class="about-body" data-en="We started as a small family kitchen with a simple dream: to bring the warmth of homemade baking to every table. Today, we craft over 50 unique recipes using locally-sourced, premium ingredients — but our philosophy hasn't changed. Every item is made by hand, baked fresh daily, and delivered with love." data-ar="بدأنا كمطبخ عائلي صغير بحلم بسيط: إحضار دفء الخبز المنزلي إلى كل مائدة. اليوم، نصنع أكثر من ٥٠ وصفة فريدة بمكونات محلية فاخرة — لكن فلسفتنا لم تتغير. كل قطعة تُصنع يدوياً وتُخبز طازجة يومياً وتُقدَّم بحب.">We started as a small family kitchen with a simple dream: to bring the warmth of homemade baking to every table. Today, we craft over 50 unique recipes using locally-sourced, premium ingredients — but our philosophy hasn't changed. Every item is made by hand, baked fresh daily, and delivered with love.</p>
+        <div class="about-features">
+          <div class="feature"><span class="feature-icon">🌾</span><span data-en="100% Natural Ingredients" data-ar="١٠٠٪ مكونات طبيعية">100% Natural Ingredients</span></div>
+          <div class="feature"><span class="feature-icon">🕔</span><span data-en="Baked Fresh Every Morning" data-ar="يُخبز طازجاً كل صباح">Baked Fresh Every Morning</span></div>
+          <div class="feature"><span class="feature-icon">🚚</span><span data-en="Same-Day Delivery" data-ar="توصيل في نفس اليوم">Same-Day Delivery</span></div>
+        </div>
+      </div>
+      <div class="about-visual">
+        <div class="about-card about-card-1">
+          <div class="ac-emoji">🥐</div>
+          <div class="ac-text" data-en="Butter Croissant" data-ar="كرواسان بالزبدة">Butter Croissant</div>
+          <div class="ac-rating">★★★★★</div>
+        </div>
+        <div class="about-card about-card-2">
+          <div class="ac-emoji">🎂</div>
+          <div class="ac-text" data-en="Signature Cake" data-ar="كيك المميز">Signature Cake</div>
+          <div class="ac-rating">★★★★★</div>
+        </div>
+        <div class="about-ring"></div>
+      </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title" data-en="What People Say" data-ar="ماذا يقول عملاؤنا">What People Say</h2>
+      </div>
+      <div class="testimonials">
+        <div class="testimonial-card">
+          <div class="t-stars">★★★★★</div>
+          <p class="t-text" data-en='"The croissants are absolutely divine. Flaky, buttery, and perfectly golden. I order every morning!"' data-ar='"الكرواسان رائع للغاية. هش وزبداني وذهبي اللون بشكل مثالي. أطلبه كل صباح!"'>"The croissants are absolutely divine. Flaky, buttery, and perfectly golden. I order every morning!"</p>
+          <div class="t-author"><div class="t-avatar" style="background:#e5c158">س</div><div><b data-en="Sarah M." data-ar="سارة م.">Sarah M.</b><br/><small data-en="Regular Customer" data-ar="عميلة دائمة">Regular Customer</small></div></div>
+        </div>
+        <div class="testimonial-card">
+          <div class="t-stars">★★★★★</div>
+          <p class="t-text" data-en='"Ordered the chocolate cake for my birthday – everyone was speechless. Best cake ever."' data-ar='"طلبت كيك الشوكولاتة لعيد ميلادي — الجميع فُغرت أفواههم. أفضل كيك تذوقته في حياتي."'>"Ordered the chocolate cake for my birthday – everyone was speechless. Best cake ever."</p>
+          <div class="t-author"><div class="t-avatar" style="background:#a18cd1">ج</div><div><b data-en="James K." data-ar="جيمس ك.">James K.</b><br/><small data-en="Verified Buyer" data-ar="مشتري موثق">Verified Buyer</small></div></div>
+        </div>
+        <div class="testimonial-card">
+          <div class="t-stars">★★★★★</div>
+          <p class="t-text" data-en='"Fast delivery, fresh bread, and excellent packaging. This is my go-to bakery from now on!"' data-ar='"توصيل سريع وخبز طازج وتغليف ممتاز. أصبح هذا مخبزي المفضل من الآن!"'>"Fast delivery, fresh bread, and excellent packaging. This is my go-to bakery from now on!"</p>
+          <div class="t-author"><div class="t-avatar" style="background:#43e97b">ل</div><div><b data-en="Layla R." data-ar="ليلى ر.">Layla R.</b><br/><small data-en="Loyal Member" data-ar="عضوة مخلصة">Loyal Member</small></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA Banner -->
+    <section class="cta-banner">
+      <div class="cta-content">
+        <h2 class="cta-title" data-en="Ready to indulge?" data-ar="هل أنت مستعد للمتعة؟">Ready to indulge?</h2>
+        <p class="cta-sub" data-en="Order before 10am for same-day delivery. Free delivery on orders over 500 EGP." data-ar="اطلب قبل الساعة ١٠ صباحاً للتوصيل في نفس اليوم. توصيل مجاني للطلبات فوق ٥٠٠ ج.م.">Order before 10am for same-day delivery. Free delivery on orders over 500 EGP.</p>
+        <button class="btn-primary btn-large" onclick="showPage('products',document.querySelector('[data-page=products]'))" data-en="Browse Menu →" data-ar="تصفح القائمة ←">Browse Menu →</button>
+      </div>
+    </section>
+  </div><!-- /page-home -->
+
+  <!-- PRODUCTS PAGE -->
+  <div id="page-products" class="page">
+    <div class="page-header">
+      <h1 class="page-title" data-en="Our Menu" data-ar="قائمتنا">Our Menu</h1>
+      <p class="page-subtitle" data-en="Fresh from the oven, every day" data-ar="طازج من الفرن، كل يوم">Fresh from the oven, every day</p>
+    </div>
+    <div class="products-filters">
+      <button class="filter-btn active" id="filter-All" onclick="filterProductPage('All',this)" data-en="All" data-ar="الكل">All</button>
+      <button class="filter-btn" id="filter-Pastries" onclick="filterProductPage('Pastries',this)" data-en="Pastries" data-ar="معجنات">Pastries</button>
+      <button class="filter-btn" id="filter-Cakes" onclick="filterProductPage('Cakes',this)" data-en="Cakes" data-ar="كيك">Cakes</button>
+      <button class="filter-btn" id="filter-Breads" onclick="filterProductPage('Breads',this)" data-en="Breads" data-ar="خبز">Breads</button>
+      <button class="filter-btn" id="filter-Cookies" onclick="filterProductPage('Cookies',this)" data-en="Cookies" data-ar="كوكيز">Cookies</button>
+    </div>
+    <div class="products-grid products-grid-full" id="products-grid"></div>
+  </div>
+
+  <!-- PRODUCT DETAIL PAGE -->
+  <div id="page-detail" class="page">
+    <button class="back-btn" id="back-btn" onclick="showPage('products',document.querySelector('[data-page=products]'))" data-en="← Back to Menu" data-ar="→ العودة للقائمة">← Back to Menu</button>
+    <div class="detail-layout" id="detail-layout"></div>
+    
+    <!-- Customer Reviews & Rating Section -->
+    <div class="reviews-section" id="reviews-section">
+      <div class="reviews-header">
+        <h3 class="reviews-title" data-en="Customer Reviews &amp; Ratings" data-ar="تقييمات وآراء العملاء">Customer Reviews &amp; Ratings</h3>
+        <button class="btn-primary btn-sm" onclick="toggleReviewForm()" data-en="Write a Review ✍️" data-ar="اكتب تقييماً ✍️">Write a Review ✍️</button>
+      </div>
+
+      <!-- Add Review Form (collapsible) -->
+      <div class="review-form-card" id="review-form-card" style="display:none;">
+        <h4 data-en="Share Your Experience" data-ar="شاركنا تجربتك">Share Your Experience</h4>
+        <form onsubmit="handleReviewSubmit(event)">
+          <div class="form-group">
+            <label data-en="Your Rating" data-ar="تقييمك">Your Rating</label>
+            <div class="star-rating-selector" id="star-rating-selector">
+              <span class="star-pick active" data-val="1" onclick="setRatingPick(1)">★</span>
+              <span class="star-pick active" data-val="2" onclick="setRatingPick(2)">★</span>
+              <span class="star-pick active" data-val="3" onclick="setRatingPick(3)">★</span>
+              <span class="star-pick active" data-val="4" onclick="setRatingPick(4)">★</span>
+              <span class="star-pick active" data-val="5" onclick="setRatingPick(5)">★</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label data-en="Your Name" data-ar="اسمك">Your Name</label>
+            <input type="text" class="form-input" id="review-user-name" placeholder="Sarah M." required />
+          </div>
+          <div class="form-group">
+            <label data-en="Your Review" data-ar="رأيك">Your Review</label>
+            <textarea class="form-input" id="review-user-comment" rows="3" placeholder="Tell us how much you enjoyed this baked good..." required></textarea>
+          </div>
+          <div class="form-actions-inline">
+            <button type="submit" class="btn-primary" data-en="Submit Review" data-ar="إرسال التقييم">Submit Review</button>
+            <button type="button" class="btn-ghost" onclick="toggleReviewForm()" data-en="Cancel" data-ar="إلغاء">Cancel</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Reviews Feed List -->
+      <div class="reviews-list" id="reviews-list">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- CART PAGE -->
+  <div id="page-cart" class="page">
+    <div class="page-header">
+      <h1 class="page-title" data-en="Your Cart" data-ar="سلة مشترياتك">Your Cart</h1>
+    </div>
+    <div class="cart-layout">
+      <div class="cart-items" id="cart-items-container">
+        <p class="empty-msg" id="cart-empty-msg" data-en="🍰 Your cart is waiting for something delicious!" data-ar="🍰 سلتك تنتظر شيئاً لذيذاً!">🍰 Your cart is waiting for something delicious!</p>
+      </div>
+      <div class="cart-summary">
+        <h3 class="summary-title" data-en="Order Summary" data-ar="ملخص الطلب">Order Summary</h3>
+        
+        <!-- Coupon / Promo Code Input -->
+        <div class="coupon-box">
+          <div class="coupon-input-group">
+            <input type="text" id="coupon-input" class="form-input" placeholder="Promo code (e.g. OLA10)" uppercase />
+            <button class="btn-secondary" onclick="applyCoupon()" data-en="Apply" data-ar="تطبيق">Apply</button>
+          </div>
+          <div id="coupon-message" class="coupon-msg"></div>
+        </div>
+
+        <!-- Loyalty Points Redemption -->
+        <div class="loyalty-redeem-card">
+          <div class="loyalty-redeem-header">
+            <span>✨ <b data-en="Ola Golden Crumbs" data-ar="نقاط عُلا الذهبية">Ola Golden Crumbs</b></span>
+            <span class="badge-pts"><span id="cart-loyalty-pts">340</span> <span data-en="pts" data-ar="نقطة">pts</span></span>
+          </div>
+          <label class="custom-checkbox-label">
+            <input type="checkbox" id="redeem-points-toggle" onchange="toggleRedeemPoints(this)" />
+            <span data-en="Redeem 100 pts for 25 EGP off" data-ar="استبدل ١٠٠ نقطة بخصم ٢٥ ج.م">Redeem 100 pts for 25 EGP off</span>
+          </label>
+        </div>
+
+        <div class="summary-row"><span data-en="Subtotal" data-ar="المجموع الفرعي">Subtotal</span><span id="s-subtotal">0.00 EGP</span></div>
+        <div class="summary-row" id="row-discount" style="display:none;color:#2e7d32;"><span data-en="Promo Discount" data-ar="خصم الكوبون">Promo Discount</span><span id="s-discount">-0.00 EGP</span></div>
+        <div class="summary-row" id="row-loyalty" style="display:none;color:#d97706;"><span data-en="Loyalty Discount" data-ar="خصم النقاط">Loyalty Discount</span><span id="s-loyalty">-0.00 EGP</span></div>
+        <div class="summary-row"><span data-en="Tax (14%)" data-ar="الضريبة (١٤٪)">Tax (14%)</span><span id="s-tax">0.00 EGP</span></div>
+        <div class="summary-row"><span data-en="Delivery" data-ar="التوصيل">Delivery</span><span id="s-delivery">25.00 EGP</span></div>
+        <div class="summary-divider"></div>
+        <div class="summary-row summary-total"><span data-en="Grand Total" data-ar="الإجمالي">Grand Total</span><span id="s-total">0.00 EGP</span></div>
+        <button class="btn-primary btn-full" onclick="checkout()" data-en="Proceed to Checkout" data-ar="المتابعة للدفع">Proceed to Checkout</button>
+        <p class="secure-note" data-en="🔒 Secure &amp; encrypted checkout" data-ar="🔒 دفع آمن ومشفر">🔒 Secure &amp; encrypted checkout</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ORDERS PAGE -->
+  <div id="page-orders" class="page">
+    <div class="page-header">
+      <h1 class="page-title" data-en="My Orders" data-ar="طلباتي">My Orders</h1>
+      <p class="page-subtitle" data-en="Track your delicious deliveries &amp; order history" data-ar="تتبع طلباتك وتاريخ مشترياتك">Track your delicious deliveries &amp; order history</p>
+    </div>
+    <div id="orders-container"></div>
+  </div>
+
+  <!-- LIVE DELIVERY TRACKING PAGE -->
+  <div id="page-tracking" class="page">
+    <button class="back-btn" onclick="showPage('orders',document.querySelector('[data-page=orders]'))" data-en="← Back to Orders" data-ar="→ العودة للطلبات">← Back to Orders</button>
+    
+    <div class="tracking-container">
+      <div class="tracking-header-card">
+        <div class="tracking-title-wrap">
+          <span class="tracking-tag" data-en="Live Bosta / Talabat Fleet Tracker" data-ar="تتبع حي لأسطول التوصيل">Live Bosta / Talabat Fleet Tracker</span>
+          <h2 id="track-order-id">Order #ORD-8821</h2>
+          <p class="tracking-dest" id="track-dest-address">📍 Delivery to: 15 Tahrir St, Downtown, Cairo</p>
+        </div>
+        <div class="tracking-eta-badge">
+          <span class="eta-label" data-en="Estimated Arrival" data-ar="الوقت المتوقع">Estimated Arrival</span>
+          <span class="eta-time" id="track-eta-time">12 Mins</span>
+          <span class="eta-status-pill" id="track-status-pill">On The Way</span>
+        </div>
+      </div>
+
+      <!-- Animated Route Map Visualizer -->
+      <div class="map-visualizer-box">
+        <svg class="delivery-map-svg" viewBox="0 0 800 320" xmlns="http://www.w3.org/2000/svg">
+          <!-- Background Grid & Roads -->
+          <rect width="800" height="320" fill="#f8f4ec" rx="16" />
+          <path d="M50 160 L750 160" stroke="#e6dbc9" stroke-width="24" stroke-linecap="round" />
+          <path d="M220 40 L220 280" stroke="#e6dbc9" stroke-width="16" stroke-linecap="round" />
+          <path d="M580 40 L580 280" stroke="#e6dbc9" stroke-width="16" stroke-linecap="round" />
+          
+          <!-- Curved Delivery Route Path -->
+          <path id="route-path" d="M 100 160 C 250 80, 550 240, 700 160" fill="none" stroke="#e5c158" stroke-width="6" stroke-dasharray="8 6" />
+          <path id="route-progress" d="M 100 160 C 250 80, 550 240, 700 160" fill="none" stroke="#2A1C14" stroke-width="6" stroke-linecap="round" opacity="0.3"/>
+
+          <!-- Origin Pin: Ola's Bakery Hub -->
+          <g transform="translate(100, 160)">
+            <circle cx="0" cy="0" r="24" fill="#2A1C14" opacity="0.15" class="pulsing-beacon" />
+            <circle cx="0" cy="0" r="16" fill="#2A1C14" />
+            <text x="0" y="5" text-anchor="middle" font-size="14" fill="#E5C158">🥐</text>
+            <text x="0" y="32" text-anchor="middle" font-size="12" font-weight="bold" fill="#2A1C14">Ola's Bakery</text>
+          </g>
+
+          <!-- Animated Moving Courier Marker -->
+          <g id="courier-marker" transform="translate(480, 185)">
+            <circle cx="0" cy="0" r="28" fill="#E5C158" opacity="0.3" class="pulsing-beacon" />
+            <circle cx="0" cy="0" r="18" fill="#E5C158" stroke="#2A1C14" stroke-width="2" />
+            <text x="0" y="5" text-anchor="middle" font-size="14">🛵</text>
+            <text x="0" y="-24" text-anchor="middle" font-size="11" font-weight="bold" fill="#2A1C14" class="courier-badge-label">Driver Mohamed</text>
+          </g>
+
+          <!-- Destination Pin: Customer Home -->
+          <g transform="translate(700, 160)">
+            <circle cx="0" cy="0" r="20" fill="#27ae60" opacity="0.2" class="pulsing-beacon" />
+            <circle cx="0" cy="0" r="14" fill="#27ae60" />
+            <text x="0" y="4" text-anchor="middle" font-size="12" fill="#fff">🏠</text>
+            <text x="0" y="30" text-anchor="middle" font-size="12" font-weight="bold" fill="#27ae60">Your Home</text>
+          </g>
+        </svg>
+
+        <div class="map-overlay-controls">
+          <button class="btn-map-action" onclick="advanceDeliverySim()" data-en="⚡ Advance Simulation Step" data-ar="⚡ تقدم خطوة في المحاكاة">⚡ Advance Simulation Step</button>
+        </div>
+      </div>
+
+      <!-- Live Stepper Stages -->
+      <div class="tracking-stepper-card">
+        <h4 data-en="Order Progress" data-ar="مراحل تقدم الطلب">Order Progress</h4>
+        <div class="stepper-stages" id="tracking-stages-list">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- Driver & Courier Info Card -->
+      <div class="driver-info-card">
+        <div class="driver-profile">
+          <div class="driver-avatar">🛵</div>
+          <div class="driver-details">
+            <h4 id="driver-name">Mohamed Tarek</h4>
+            <p class="driver-vehicle" id="driver-vehicle">Yamaha Scooter (Red) · أ ج د ٩٨٢</p>
+            <div class="driver-rating">
+              <span class="rating-stars">★★★★★</span>
+              <span class="rating-val">4.95</span>
+              <span class="rating-deliveries">(1,420+ deliveries)</span>
+            </div>
+          </div>
+        </div>
+        <div class="driver-actions">
+          <button class="btn-call-driver" onclick="callDriver()" data-en="📞 Call Driver" data-ar="📞 اتصال بالسائق">📞 Call Driver</button>
+          <button class="btn-chat-support" onclick="openChatSupport()" data-en="💬 Help &amp; Support" data-ar="💬 الدعم الفني">💬 Help &amp; Support</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADMIN PORTAL PAGE -->
+  <div id="page-admin" class="page">
+    <div class="admin-top-bar">
+      <div>
+        <h1 class="admin-title" data-en="👑 Bakery Management Portal" data-ar="👑 لوحة إدارة المخبز">👑 Bakery Management Portal</h1>
+        <p class="admin-sub" data-en="Real-time operations, inventory, orders &amp; cloud database sync" data-ar="العمليات الحية، المخزون، الطلبات ومزامنة السحابة">Real-time operations, inventory, orders &amp; cloud database sync</p>
+      </div>
+      <div class="admin-top-actions">
+        <button class="btn-secondary" onclick="simulateNewOrder()" data-en="+ Simulate Influx Order" data-ar="+ محاكاة طلب جديد">+ Simulate Influx Order</button>
+        <button class="btn-primary" onclick="openAddProductModal()" data-en="+ Add New Product" data-ar="+ إضافة منتج جديد">+ Add New Product</button>
+      </div>
+    </div>
+
+    <!-- Admin Navigation Tabs -->
+    <div class="admin-tabs">
+      <button class="admin-tab active" onclick="switchAdminTab('overview', this)" data-en="📊 Overview &amp; Analytics" data-ar="📊 الإحصائيات العامة">📊 Overview &amp; Analytics</button>
+      <button class="admin-tab" onclick="switchAdminTab('orders', this)" data-en="🛵 Live Orders Queue" data-ar="🛵 طابور الطلبات الحية">🛵 Live Orders Queue</button>
+      <button class="admin-tab" onclick="switchAdminTab('catalog', this)" data-en="🥐 Product Catalog" data-ar="🥐 إدارة المنتجات">🥐 Product Catalog</button>
+      <button class="admin-tab" onclick="switchAdminTab('branches', this)" data-en="🏪 Branches &amp; Zones" data-ar="🏪 الفروع ومناطق التوصيل">🏪 Branches &amp; Zones</button>
+      <button class="admin-tab" id="tab-btn-clouddb" onclick="switchAdminTab('clouddb', this)" data-en="☁️ Free Cloud DB &amp; Launch" data-ar="☁️ قاعدة السحابة وإطلاق الويب">☁️ Free Cloud DB &amp; Launch</button>
+    </div>
+
+    <!-- TAB 1: OVERVIEW -->
+    <div id="admin-tab-overview" class="admin-tab-content active">
+      <div class="admin-stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon-wrap" style="background:#fff3e0;color:#e65100;">💰</div>
+          <div>
+            <div class="stat-card-label" data-en="Total Revenue" data-ar="إجمالي المبيعات">Total Revenue</div>
+            <div class="stat-card-value" id="adm-revenue">14,425.30 EGP</div>
+            <div class="stat-card-trend">+18.4% vs last week</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon-wrap" style="background:#e8f5e9;color:#2e7d32;">📦</div>
+          <div>
+            <div class="stat-card-label" data-en="Total Orders" data-ar="إجمالي الطلبات">Total Orders</div>
+            <div class="stat-card-value" id="adm-orders-count">85</div>
+            <div class="stat-card-trend">+12 today</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon-wrap" style="background:#e1f5fe;color:#0277bd;">🛵</div>
+          <div>
+            <div class="stat-card-label" data-en="Active Deliveries" data-ar="توصيلات نشطة">Active Deliveries</div>
+            <div class="stat-card-value" id="adm-active-deliveries">3</div>
+            <div class="stat-card-trend">All on-time</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon-wrap" style="background:#fce4ec;color:#c2185b;">⭐</div>
+          <div>
+            <div class="stat-card-label" data-en="Average Rating" data-ar="متوسط التقييم">Average Rating</div>
+            <div class="stat-card-value">4.92 ★</div>
+            <div class="stat-card-trend">Based on 480 reviews</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top Sellers Table & Live Fleet -->
+      <div class="admin-dual-panel">
+        <div class="admin-card">
+          <h3 class="admin-card-title" data-en="Top Selling Bakery Items" data-ar="أكثر المخبوزات مبيعاً">Top Selling Bakery Items</h3>
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th data-en="Product" data-ar="المنتج">Product</th>
+                <th data-en="Category" data-ar="التصنيف">Category</th>
+                <th data-en="Units Sold" data-ar="الكمية المباعة">Units Sold</th>
+                <th data-en="Revenue" data-ar="الإيرادات">Revenue</th>
+              </tr>
+            </thead>
+            <tbody id="adm-topsellers-tbody">
+              <!-- Rendered by JS -->
+            </tbody>
+          </table>
+        </div>
+
+        <div class="admin-card">
+          <h3 class="admin-card-title" data-en="Live Branch Activity" data-ar="نشاط الفروع المباشر">Live Branch Activity</h3>
+          <div class="branch-activity-list" id="adm-branch-activity">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: LIVE ORDERS QUEUE -->
+    <div id="admin-tab-orders" class="admin-tab-content">
+      <div class="admin-card">
+        <div class="admin-card-header-flex">
+          <h3 class="admin-card-title" data-en="Live Orders Pipeline" data-ar="خط سير الطلبات الحية">Live Orders Pipeline</h3>
+          <span class="refresh-indicator" onclick="loadAdminOrders()">🔄 <span data-en="Sync" data-ar="مزامنة">Sync</span></span>
+        </div>
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th data-en="Order ID" data-ar="رقم الطلب">Order ID</th>
+              <th data-en="Customer" data-ar="العميل">Customer</th>
+              <th data-en="Items" data-ar="الأصناف">Items</th>
+              <th data-en="Total" data-ar="الإجمالي">Total</th>
+              <th data-en="Status Action" data-ar="تحديث الحالة">Status Action</th>
+              <th data-en="Track" data-ar="تتبع">Track</th>
+            </tr>
+          </thead>
+          <tbody id="adm-orders-tbody">
+            <!-- Rendered by JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB 3: PRODUCT CATALOG -->
+    <div id="admin-tab-catalog" class="admin-tab-content">
+      <div class="admin-card">
+        <div class="admin-card-header-flex">
+          <h3 class="admin-card-title" data-en="Bakery Menu &amp; Inventory" data-ar="قائمة المخبوزات والمخزون">Bakery Menu &amp; Inventory</h3>
+          <button class="btn-primary btn-sm" onclick="openAddProductModal()" data-en="+ Add Item" data-ar="+ إضافة صنف">+ Add Item</button>
+        </div>
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th data-en="Item" data-ar="الصنف">Item</th>
+              <th data-en="Category" data-ar="التصنيف">Category</th>
+              <th data-en="Price" data-ar="السعر">Price</th>
+              <th data-en="Stock" data-ar="المخزون">Stock</th>
+              <th data-en="Status" data-ar="الحالة">Status</th>
+              <th data-en="Actions" data-ar="الإجراءات">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="adm-catalog-tbody">
+            <!-- Rendered by JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB 4: BRANCHES & DELIVERY -->
+    <div id="admin-tab-branches" class="admin-tab-content">
+      <div class="admin-branches-grid" id="adm-branches-grid">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+
+    <!-- TAB 5: FREE CLOUD DB & ONLINE LAUNCH -->
+    <div id="admin-tab-clouddb" class="admin-tab-content">
+      <div class="cloud-setup-grid">
+        <!-- Cloud Database Setup Card -->
+        <div class="admin-card">
+          <h3 class="admin-card-title" data-en="🌐 Free Cloud Database Configuration" data-ar="🌐 إعداد قاعدة البيانات السحابية المجانية">🌐 Free Cloud Database Configuration</h3>
+          <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:20px;" data-en="Connect your free cloud database (Supabase, Firebase, or Node REST API) to persist products and orders across any device worldwide with zero hosting costs." data-ar="اربط قاعدة بياناتك السحابية المجانية (سوبابيز، فايربيز، أو خادم نود) لحفظ المنتجات والطلبات عالمياً وبدون أي تكلفة استضافة.">Connect your free cloud database (Supabase, Firebase, or Node REST API) to persist products and orders across any device worldwide with zero hosting costs.</p>
+
+          <form onsubmit="saveCloudDBSettings(event)" class="cloud-form">
+            <div class="form-group">
+              <label data-en="Cloud Database Provider" data-ar="مزود قاعدة البيانات السحابية">Cloud Database Provider</label>
+              <select class="form-input" id="cloud-provider-select">
+                <option value="free_cloud_store">🌟 Pre-configured Free Cloud Store (Zero setup required)</option>
+                <option value="supabase">⚡ Supabase Free PostgreSQL (Recommended)</option>
+                <option value="firebase">🔥 Firebase Firestore Free</option>
+                <option value="local">🖥️ Self-Hosted Node.js API (Render / localhost)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label data-en="Supabase / Cloud Project URL" data-ar="رابط مشروع السحابة (URL)">Supabase / Cloud Project URL</label>
+              <input type="text" class="form-input" id="cloud-supabase-url" placeholder="https://your-project.supabase.co" />
+            </div>
+
+            <div class="form-group">
+              <label data-en="Public Anon / API Key" data-ar="مفتاح الوصول العام (API Key)">Public Anon / API Key</label>
+              <input type="password" class="form-input" id="cloud-supabase-key" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." />
+            </div>
+
+            <div class="form-actions-inline">
+              <button type="submit" class="btn-primary" data-en="💾 Save &amp; Connect" data-ar="💾 حفظ واتصال">💾 Save &amp; Connect</button>
+              <button type="button" class="btn-secondary" onclick="testCloudConnection()" data-en="📡 Test Connection Ping" data-ar="📡 اختبار الاتصال">📡 Test Connection Ping</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- 1-Click Free Online Launch Guide -->
+        <div class="admin-card">
+          <h3 class="admin-card-title" data-en="🚀 100% Free Online Launch Guide" data-ar="🚀 دليل إطلاق الموقع مجاناً ١٠٠٪">🚀 100% Free Online Launch Guide</h3>
+          <div class="launch-steps-list">
+            <div class="launch-step-item">
+              <div class="step-badge">1</div>
+              <div>
+                <b data-en="GitHub Pages (Instant Free)" data-ar="جيت هب بيجز (مجاني فوري)">GitHub Pages (Instant Free)</b>
+                <p data-en="Upload the 'web' folder to a GitHub repository and turn on GitHub Pages in Settings. Your bakery goes live instantly!" data-ar="ارفع مجلد 'web' إلى مستودع جيت هب وفعل GitHub Pages في الإعدادات وسيعمل موقعك فوراً!">Upload the 'web' folder to a GitHub repository and turn on GitHub Pages in Settings. Your bakery goes live instantly!</p>
+              </div>
+            </div>
+
+            <div class="launch-step-item">
+              <div class="step-badge">2</div>
+              <div>
+                <b data-en="Vercel or Netlify (1-Click Drag &amp; Drop)" data-ar="فيرسل أو نتليفاي (سحب وإفلات)">Vercel or Netlify (1-Click Drag &amp; Drop)</b>
+                <p data-en="Go to vercel.com or netlify.com, drag &amp; drop the 'web' folder, and get a fast HTTPS global URL in 10 seconds." data-ar="توجه إلى vercel.com أو netlify.com واسحب مجلد 'web' لتحصل على رابط عالمي مشفر وسريع في ١٠ ثوانٍ.">Go to vercel.com or netlify.com, drag &amp; drop the 'web' folder, and get a fast HTTPS global URL in 10 seconds.</p>
+              </div>
+            </div>
+
+            <div class="launch-step-item">
+              <div class="step-badge">3</div>
+              <div>
+                <b data-en="Render.com Free Backend (Optional Node.js)" data-ar="ريندر دوت كوم للخادم (اختياري)">Render.com Free Backend (Optional Node.js)</b>
+                <p data-en="Deploy the 'backend' folder to Render.com with 1-click using our included render.yaml file." data-ar="انشر مجلد 'backend' على Render.com بنقرة واحدة باستخدام ملف render.yaml المرفق.">Deploy the 'backend' folder to Render.com with 1-click using our included render.yaml file.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- LOGIN PAGE -->
+  <div id="page-login" class="page">
+    <div class="auth-layout">
+      <div class="auth-card">
+        <div class="auth-logo">
+          <svg viewBox="0 0 56 56" width="64" height="64" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="28" cy="28" r="26" fill="none" stroke="#C9963A" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.7"/>
+            <circle cx="28" cy="28" r="22" fill="#2A1C14" />
+            <path d="M20 22 L22 17 L25 21 L28 15 L31 21 L34 17 L36 22 Z" fill="#E5C158"/>
+            <path d="M16 32 Q18 26 28 28 Q38 30 40 32 Q38 38 28 36 Q18 38 16 32Z" fill="#C9963A" />
+            <path d="M20 30 Q24 27 30 29" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1.2" stroke-linecap="round"/>
+            <path d="M44 20 L44.5 18 L45 20 L47 20.5 L45 21 L44.5 23 L44 21 L42 20.5 Z" fill="#E5C158" opacity="0.9"/>
+          </svg>
+        </div>
+        <h1 class="auth-title" data-en="Welcome Back" data-ar="مرحباً بعودتك">Welcome Back</h1>
+        <p class="auth-sub" data-en="Sign in to continue your delicious journey" data-ar="سجل دخولك لمواصلة رحلتك اللذيذة">Sign in to continue your delicious journey</p>
+        <form class="auth-form" onsubmit="handleLogin(event)">
+          <div class="form-group">
+            <label class="form-label" data-en="Email" data-ar="البريد الإلكتروني">Email</label>
+            <input class="form-input" id="login-email" type="email" value="sarah@example.com" placeholder="you@example.com" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-en="Password" data-ar="كلمة المرور">Password</label>
+            <input class="form-input" id="login-password" type="password" value="secret123" placeholder="••••••••" required />
+          </div>
+          <button type="submit" class="btn-primary btn-full" data-en="Sign In" data-ar="تسجيل الدخول">Sign In</button>
+        </form>
+        <p class="auth-switch">
+          <span data-en="Don't have an account?" data-ar="ليس لديك حساب؟">Don't have an account?</span>
+          <a href="#" onclick="showPage('register',null);return false" data-en="Register here" data-ar="سجل هنا">Register here</a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- REGISTER PAGE -->
+  <div id="page-register" class="page">
+    <div class="auth-layout">
+      <div class="auth-card">
+        <div class="auth-logo">
+          <svg viewBox="0 0 56 56" width="64" height="64" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="28" cy="28" r="26" fill="none" stroke="#C9963A" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.7"/>
+            <circle cx="28" cy="28" r="22" fill="#2A1C14" />
+            <path d="M20 22 L22 17 L25 21 L28 15 L31 21 L34 17 L36 22 Z" fill="#E5C158"/>
+            <path d="M16 32 Q18 26 28 28 Q38 30 40 32 Q38 38 28 36 Q18 38 16 32Z" fill="#C9963A" />
+            <path d="M20 30 Q24 27 30 29" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1.2" stroke-linecap="round"/>
+            <path d="M44 20 L44.5 18 L45 20 L47 20.5 L45 21 L44.5 23 L44 21 L42 20.5 Z" fill="#E5C158" opacity="0.9"/>
+          </svg>
+        </div>
+        <h1 class="auth-title" data-en="Create Account" data-ar="إنشاء حساب">Create Account</h1>
+        <p class="auth-sub" data-en="Join thousands of happy customers" data-ar="انضم إلى آلاف العملاء السعداء">Join thousands of happy customers</p>
+        <form class="auth-form" onsubmit="handleRegister(event)">
+          <div class="form-group">
+            <label class="form-label" data-en="Full Name" data-ar="الاسم الكامل">Full Name</label>
+            <input class="form-input" id="reg-name" type="text" placeholder="Jane Doe" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-en="Email" data-ar="البريد الإلكتروني">Email</label>
+            <input class="form-input" id="reg-email" type="email" placeholder="you@example.com" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-en="Password" data-ar="كلمة المرور">Password</label>
+            <input class="form-input" id="reg-password" type="password" placeholder="Min. 8 characters" required />
+          </div>
+          <button type="submit" class="btn-primary btn-full" data-en="Create Account" data-ar="إنشاء حساب">Create Account</button>
+        </form>
+        <p class="auth-switch">
+          <span data-en="Already have an account?" data-ar="لديك حساب بالفعل؟">Already have an account?</span>
+          <a href="#" onclick="showPage('login',null);return false" data-en="Sign in" data-ar="سجل دخولك">Sign in</a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOYALTY MODAL -->
+  <div class="modal-backdrop" id="loyalty-modal" style="display:none;" onclick="if(event.target===this)closeLoyaltyModal()">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 data-en="✨ Ola Golden Crumbs Rewards" data-ar="✨ برنامج مكافآت عُلا">✨ Ola Golden Crumbs Rewards</h3>
+        <button class="modal-close-btn" onclick="closeLoyaltyModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="loyalty-gold-card">
+          <div class="lgc-tier">Gold Baker Member</div>
+          <div class="lgc-points" id="modal-loyalty-pts">340</div>
+          <div class="lgc-subtitle" data-en="Available Reward Points" data-ar="النقاط المتاحة للاستبدال">Available Reward Points</div>
+          <div class="lgc-progress-bar"><div class="lgc-fill" style="width: 68%;"></div></div>
+          <div class="lgc-perk" data-en="160 pts to Platinum Chef tier" data-ar="١٦٠ نقطة متبقية للمستوى البلاتيني">160 pts to Platinum Chef tier</div>
+        </div>
+
+        <div class="referral-box">
+          <h4 data-en="🎁 Invite a Friend &amp; Earn 100 Pts" data-ar="🎁 ادعُ صديقاً واربح ١٠٠ نقطة">🎁 Invite a Friend &amp; Earn 100 Pts</h4>
+          <p data-en="Share your referral code and both of you will get 100 bonus Golden Crumbs on their first order." data-ar="شارك كود الدعوة وسيحصل كليكما على ١٠٠ نقطة مكافأة فور أول طلب.">Share your referral code and both of you will get 100 bonus Golden Crumbs on their first order.</p>
+          <div class="referral-code-wrap">
+            <span class="ref-code">OLA-GOLD-99</span>
+            <button class="btn-sm btn-secondary" onclick="copyReferralCode()" data-en="Copy Code" data-ar="نسخ الكود">Copy Code</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADD / EDIT PRODUCT MODAL (ADMIN) -->
+  <div class="modal-backdrop" id="product-modal" style="display:none;" onclick="if(event.target===this)closeProductModal()">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="product-modal-title" data-en="Add Bakery Product" data-ar="إضافة منتج جديد">Add Bakery Product</h3>
+        <button class="modal-close-btn" onclick="closeProductModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form onsubmit="handleSaveProduct(event)">
+          <input type="hidden" id="pm-id" />
+          <div class="form-group">
+            <label data-en="English Name" data-ar="الاسم بالإنجليزية">English Name</label>
+            <input type="text" class="form-input" id="pm-name-en" required />
+          </div>
+          <div class="form-group">
+            <label data-en="Arabic Name" data-ar="الاسم بالعربية">Arabic Name</label>
+            <input type="text" class="form-input" id="pm-name-ar" required />
+          </div>
+          <div class="form-row-2">
+            <div class="form-group">
+              <label data-en="Category" data-ar="التصنيف">Category</label>
+              <select class="form-input" id="pm-category">
+                <option value="Pastries">Pastries (معجنات)</option>
+                <option value="Cakes">Cakes (كيك)</option>
+                <option value="Breads">Breads (خبز)</option>
+                <option value="Cookies">Cookies (كوكيز)</option>
+                <option value="Drinks">Drinks (مشروبات)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label data-en="Price (EGP)" data-ar="السعر (ج.م)">Price (EGP)</label>
+              <input type="number" step="0.5" class="form-input" id="pm-price" required />
+            </div>
+          </div>
+          <div class="form-group">
+            <label data-en="Stock Quantity" data-ar="كمية المخزون">Stock Quantity</label>
+            <input type="number" class="form-input" id="pm-stock" value="20" required />
+          </div>
+          <div class="form-group">
+            <label data-en="Description (EN)" data-ar="الوصف (إنجليزي)">Description (EN)</label>
+            <textarea class="form-input" id="pm-desc-en" rows="2"></textarea>
+          </div>
+          <div class="form-actions-inline">
+            <button type="submit" class="btn-primary" data-en="Save Product" data-ar="حفظ المنتج">Save Product</button>
+            <button type="button" class="btn-ghost" onclick="closeProductModal()" data-en="Cancel" data-ar="إلغاء">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST ALERTS -->
+  <div class="toast" id="toast"></div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-brand">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+          <svg viewBox="0 0 56 56" width="40" height="40" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="28" cy="28" r="26" fill="none" stroke="#C9963A" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.7"/>
+            <circle cx="28" cy="28" r="22" fill="#2A1C14" />
+            <path d="M20 22 L22 17 L25 21 L28 15 L31 21 L34 17 L36 22 Z" fill="#E5C158"/>
+            <path d="M16 32 Q18 26 28 28 Q38 30 40 32 Q38 38 28 36 Q18 38 16 32Z" fill="#C9963A" />
+            <path d="M20 30 Q24 27 30 29" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1.2" stroke-linecap="round"/>
+            <path d="M44 20 L44.5 18 L45 20 L47 20.5 L45 21 L44.5 23 L44 21 L42 20.5 Z" fill="#E5C158" opacity="0.9"/>
+          </svg>
+          <div>
+            <div style="font-family:'Playfair Display',serif;font-size:1.15rem;font-weight:700;color:#2A1C14" data-en="Ola's Bakery" data-ar="مخبز عُلا">Ola's Bakery</div>
+            <div style="font-size:0.72rem;color:#6b5a4e;letter-spacing:0.05em" data-en="Est. 2010" data-ar="منذ ٢٠١٠">Est. 2010</div>
+          </div>
+        </div>
+        <p style="color:#6b5a4e;font-size:.9rem;max-width:220px" data-en="Freshly baked happiness, delivered to your door." data-ar="سعادة مخبوزة طازجة، تصل إلى بابك.">Freshly baked happiness, delivered to your door.</p>
+        <div style="margin-top:12px;">
+          <span class="cloud-badge-online" id="footer-cloud-badge">🟢 Cloud DB Online</span>
+        </div>
+      </div>
+      <div class="footer-links">
+        <h4 data-en="Menu" data-ar="القائمة">Menu</h4>
+        <a href="#" data-en="Pastries" data-ar="معجنات">Pastries</a>
+        <a href="#" data-en="Cakes" data-ar="كيك">Cakes</a>
+        <a href="#" data-en="Breads" data-ar="خبز">Breads</a>
+        <a href="#" data-en="Seasonal" data-ar="موسمي">Seasonal</a>
+      </div>
+      <div class="footer-links">
+        <h4 data-en="Company" data-ar="الشركة">Company</h4>
+        <a href="#" data-en="About Us" data-ar="من نحن">About Us</a>
+        <a href="#" data-en="Careers" data-ar="وظائف">Careers</a>
+        <a href="#" data-en="Press" data-ar="الصحافة">Press</a>
+        <a href="#" data-en="Contact" data-ar="تواصل معنا">Contact</a>
+      </div>
+      <div class="footer-links">
+        <h4 data-en="Support" data-ar="الدعم">Support</h4>
+        <a href="#" data-en="FAQ" data-ar="الأسئلة الشائعة">FAQ</a>
+        <a href="#" data-en="Delivery Info" data-ar="معلومات التوصيل">Delivery Info</a>
+        <a href="#" data-en="Returns" data-ar="الإرجاع">Returns</a>
+        <a href="#" data-en="Privacy" data-ar="الخصوصية">Privacy</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p data-en="© 2026 Ola's Bakery. All rights reserved. Made with ❤️ and butter." data-ar="© ٢٠٢٦ مخبز عُلا. جميع الحقوق محفوظة. صُنع بـ ❤️ وزبدة.">© 2026 Ola's Bakery. All rights reserved. Made with ❤️ and butter.</p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
