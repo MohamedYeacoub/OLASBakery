@@ -18,45 +18,56 @@
 
   <!-- NAVBAR (Customer View) -->
   <nav class="navbar" id="navbar">
-    <div class="nav-brand" onclick="showPage('home',null)">
-      <!-- Fantasy SVG Logo -->
-      <svg class="brand-svg-logo" viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg" aria-label="Ola's Bakery Logo">
-        <circle cx="28" cy="28" r="26" fill="none" stroke="url(#logoGold)" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.7"/>
-        <circle cx="28" cy="28" r="22" fill="url(#logoBg)" />
-        <path d="M20 22 L22 17 L25 21 L28 15 L31 21 L34 17 L36 22 Z" fill="url(#logoGold)" stroke="#b8832a" stroke-width="0.5"/>
-        <path d="M16 32 Q18 26 28 28 Q38 30 40 32 Q38 38 28 36 Q18 38 16 32Z" fill="url(#logoCroissant)" />
-        <path d="M20 30 Q24 27 30 29" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1.2" stroke-linecap="round"/>
-        <circle cx="10" cy="38" r="1.2" fill="#E5C158" opacity="0.8"/>
-        <circle cx="46" cy="36" r="0.9" fill="#E5C158" opacity="0.7"/>
-        <circle cx="8" cy="22" r="0.8" fill="#E5C158" opacity="0.6"/>
-        <path d="M44 20 L44.5 18 L45 20 L47 20.5 L45 21 L44.5 23 L44 21 L42 20.5 Z" fill="#E5C158" opacity="0.9"/>
-        <defs>
-          <linearGradient id="logoGold" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#E5C158"/>
-            <stop offset="100%" stop-color="#C9963A"/>
-          </linearGradient>
-          <radialGradient id="logoBg" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stop-color="#4A3728"/>
-            <stop offset="100%" stop-color="#2A1C14"/>
-          </radialGradient>
-          <linearGradient id="logoCroissant" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#E5C158"/>
-            <stop offset="50%" stop-color="#C9963A"/>
-            <stop offset="100%" stop-color="#9a6b22"/>
-          </linearGradient>
-        </defs>
-      </svg>
-      <div class="brand-name-wrap">
-        <span class="brand-name" data-en="Ola's Bakery" data-ar="مخبز عُلا">Ola's Bakery</span>
-        <span class="brand-tagline" data-en="Est. 2010" data-ar="منذ ٢٠١٠">Est. 2010</span>
+    <div class="nav-left-group">
+      <!-- Mobile Menu Hamburger Button -->
+      <button class="mobile-menu-btn" id="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="Toggle Navigation Menu">
+        <span class="hamburger-bar"></span>
+        <span class="hamburger-bar"></span>
+        <span class="hamburger-bar"></span>
+      </button>
+
+      <div class="nav-brand" onclick="showPage('home',null)">
+        <!-- Fantasy SVG Logo -->
+        <svg class="brand-svg-logo" viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg" aria-label="Ola's Bakery Logo">
+          <circle cx="28" cy="28" r="26" fill="none" stroke="url(#logoGold)" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.7"/>
+          <circle cx="28" cy="28" r="22" fill="url(#logoBg)" />
+          <path d="M20 22 L22 17 L25 21 L28 15 L31 21 L34 17 L36 22 Z" fill="url(#logoGold)" stroke="#b8832a" stroke-width="0.5"/>
+          <path d="M16 32 Q18 26 28 28 Q38 30 40 32 Q38 38 28 36 Q18 38 16 32Z" fill="url(#logoCroissant)" />
+          <path d="M20 30 Q24 27 30 29" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1.2" stroke-linecap="round"/>
+          <circle cx="10" cy="38" r="1.2" fill="#E5C158" opacity="0.8"/>
+          <circle cx="46" cy="36" r="0.9" fill="#E5C158" opacity="0.7"/>
+          <circle cx="8" cy="22" r="0.8" fill="#E5C158" opacity="0.6"/>
+          <path d="M44 20 L44.5 18 L45 20 L47 20.5 L45 21 L44.5 23 L44 21 L42 20.5 Z" fill="#E5C158" opacity="0.9"/>
+          <defs>
+            <linearGradient id="logoGold" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#E5C158"/>
+              <stop offset="100%" stop-color="#C9963A"/>
+            </linearGradient>
+            <radialGradient id="logoBg" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#4A3728"/>
+              <stop offset="100%" stop-color="#2A1C14"/>
+            </radialGradient>
+            <linearGradient id="logoCroissant" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#E5C158"/>
+              <stop offset="50%" stop-color="#C9963A"/>
+              <stop offset="100%" stop-color="#9a6b22"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <div class="brand-name-wrap">
+          <span class="brand-name" data-en="Ola's Bakery" data-ar="مخبز عُلا">Ola's Bakery</span>
+          <span class="brand-tagline" data-en="Est. 2010" data-ar="منذ ٢٠١٠">Est. 2010</span>
+        </div>
       </div>
     </div>
+
     <ul class="nav-links" id="nav-links">
       <li><a href="#" class="nav-link active" data-page="home" onclick="showPage('home',this);return false" data-en="Home" data-ar="الرئيسية">Home</a></li>
       <li><a href="#" class="nav-link" data-page="products" onclick="showPage('products',this);return false" data-en="Menu" data-ar="القائمة">Menu</a></li>
       <li id="nav-item-orders"><a href="#" class="nav-link" data-page="orders" onclick="showPage('orders',this);return false" data-en="My Orders" data-ar="طلباتي">My Orders</a></li>
       <li id="nav-item-admin" style="display:none;"><a href="#" class="nav-link nav-admin-link" data-page="admin" onclick="showPage('admin',this);return false" data-en="👑 Admin Portal" data-ar="👑 لوحة التحكم">👑 Admin Portal</a></li>
     </ul>
+
     <div class="nav-right">
       <!-- User Auth / Profile Area -->
       <div id="nav-auth-container" class="nav-auth-container">
@@ -98,6 +109,7 @@
           </div>
         </div>
       </div>
+
       <!-- Loyalty Points Pill -->
       <div class="loyalty-pill" onclick="openLoyaltyModal()" title="Ola Golden Crumbs Rewards">
         <span class="loyalty-icon">✨</span>
@@ -107,7 +119,7 @@
 
       <!-- Notifications Bell -->
       <div class="notif-wrapper">
-        <button class="icon-btn" id="notif-btn" onclick="toggleNotifPanel(event)" title="Notifications">
+        <button class="icon-btn" id="notif-btn" onclick="toggleNotifPanel(event)" title="Notifications" aria-label="Notifications">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
             <path d="M13.73 21a2 2 0 01-3.46 0"></path>
@@ -126,13 +138,13 @@
       </div>
 
       <!-- Language Toggle -->
-      <button class="lang-toggle" id="lang-toggle" onclick="toggleLang()" title="Switch Language">
+      <button class="lang-toggle" id="lang-toggle" onclick="toggleLang()" title="Switch Language" aria-label="Switch Language">
         <span class="lang-icon">🌐</span>
         <span id="lang-label">عربي</span>
       </button>
 
       <!-- Cart Button -->
-      <button class="cart-btn" id="cart-btn" onclick="showPage('cart',null)">
+      <button class="cart-btn" id="cart-btn" onclick="showPage('cart',null)" title="Shopping Cart" aria-label="Shopping Cart">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
           <line x1="3" y1="6" x2="21" y2="6"/>
@@ -142,6 +154,72 @@
       </button>
     </div>
   </nav>
+
+  <!-- Mobile Navigation Drawer & Backdrop -->
+  <div class="mobile-drawer-backdrop" id="mobile-drawer-backdrop" onclick="closeMobileMenu()"></div>
+  <aside class="mobile-drawer" id="mobile-drawer" aria-label="Mobile Navigation">
+    <div class="mobile-drawer-header">
+      <div class="drawer-brand" onclick="showPage('home',null);closeMobileMenu();">
+        <svg class="brand-svg-logo" viewBox="0 0 56 56" width="36" height="36" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="28" cy="28" r="26" fill="none" stroke="#C9963A" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.7"/>
+          <circle cx="28" cy="28" r="22" fill="#2A1C14" />
+          <path d="M20 22 L22 17 L25 21 L28 15 L31 21 L34 17 L36 22 Z" fill="#E5C158"/>
+          <path d="M16 32 Q18 26 28 28 Q38 30 40 32 Q38 38 28 36 Q18 38 16 32Z" fill="#C9963A"/>
+        </svg>
+        <div>
+          <div class="brand-name" data-en="Ola's Bakery" data-ar="مخبز عُلا">Ola's Bakery</div>
+          <div class="brand-tagline" data-en="Est. 2010" data-ar="منذ ٢٠١٠">Est. 2010</div>
+        </div>
+      </div>
+      <button class="drawer-close-btn" onclick="closeMobileMenu()" aria-label="Close menu">&times;</button>
+    </div>
+
+    <!-- Drawer User Card -->
+    <div class="drawer-user-card" id="drawer-user-card">
+      <div class="duc-avatar" id="drawer-avatar">👤</div>
+      <div class="duc-info">
+        <div class="duc-name" id="drawer-name">Guest Visitor</div>
+        <div class="duc-role" id="drawer-role">Public Browsing</div>
+      </div>
+      <button class="drawer-auth-btn" id="drawer-auth-btn" onclick="showPage('login',null);closeMobileMenu();" data-en="Sign In" data-ar="دخول">Sign In</button>
+    </div>
+
+    <!-- Drawer Navigation Links -->
+    <nav class="drawer-nav">
+      <a href="#" class="drawer-link active" data-page="home" onclick="showPage('home',null);closeMobileMenu();return false;">
+        <span class="d-icon">🏠</span> <span data-en="Home" data-ar="الرئيسية">Home</span>
+      </a>
+      <a href="#" class="drawer-link" data-page="products" onclick="showPage('products',null);closeMobileMenu();return false;">
+        <span class="d-icon">🥐</span> <span data-en="Our Menu" data-ar="قائمتنا">Our Menu</span>
+      </a>
+      <a href="#" class="drawer-link" data-page="orders" onclick="showPage('orders',null);closeMobileMenu();return false;">
+        <span class="d-icon">📦</span> <span data-en="My Orders & Tracking" data-ar="طلباتي والتتبع">My Orders & Tracking</span>
+      </a>
+      <a href="#" class="drawer-link" onclick="openLoyaltyModal();closeMobileMenu();return false;">
+        <span class="d-icon">✨</span> <span data-en="Loyalty Rewards" data-ar="مكافآت الولاء">Loyalty Rewards</span>
+        <span class="badge-drawer-pts" id="drawer-loyalty-pts">340 Pts</span>
+      </a>
+      <a href="#" class="drawer-link drawer-admin-link" id="drawer-admin-link" style="display:none;" onclick="showPage('admin',null);closeMobileMenu();return false;">
+        <span class="d-icon">👑</span> <span data-en="Admin Portal" data-ar="لوحة التحكم الإدارية">Admin Portal</span>
+      </a>
+    </nav>
+
+    <!-- Quick Role Switcher in Drawer -->
+    <div class="drawer-role-section">
+      <div class="drawer-role-title" data-en="⚡ Quick Role Switcher" data-ar="⚡ التبديل السريع للصلاحيات">⚡ Quick Role Switcher</div>
+      <div class="drawer-role-buttons">
+        <button class="dr-btn" onclick="switchRoleView('visitor');closeMobileMenu();">👁️ <span data-en="Guest" data-ar="زائر">Guest</span></button>
+        <button class="dr-btn" onclick="switchRoleView('user');closeMobileMenu();">👩 <span data-en="Customer" data-ar="عميل">Customer</span></button>
+        <button class="dr-btn" onclick="switchRoleView('admin');closeMobileMenu();">👑 <span data-en="Admin" data-ar="إدارة">Admin</span></button>
+      </div>
+    </div>
+
+    <div class="drawer-footer">
+      <button class="drawer-lang-btn" onclick="toggleLang();closeMobileMenu();">
+        <span>🌐</span> <span id="drawer-lang-label">عربي / English</span>
+      </button>
+    </div>
+  </aside>
 
   <!-- ==================== PAGES ==================== -->
 
@@ -555,19 +633,21 @@
       <div class="admin-dual-panel">
         <div class="admin-card">
           <h3 class="admin-card-title" data-en="Top Selling Bakery Items" data-ar="أكثر المخبوزات مبيعاً">Top Selling Bakery Items</h3>
-          <table class="admin-table">
-            <thead>
-              <tr>
-                <th data-en="Product" data-ar="المنتج">Product</th>
-                <th data-en="Category" data-ar="التصنيف">Category</th>
-                <th data-en="Units Sold" data-ar="الكمية المباعة">Units Sold</th>
-                <th data-en="Revenue" data-ar="الإيرادات">Revenue</th>
-              </tr>
-            </thead>
-            <tbody id="adm-topsellers-tbody">
-              <!-- Rendered by JS -->
-            </tbody>
-          </table>
+          <div class="admin-table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th data-en="Product" data-ar="المنتج">Product</th>
+                  <th data-en="Category" data-ar="التصنيف">Category</th>
+                  <th data-en="Units Sold" data-ar="الكمية المباعة">Units Sold</th>
+                  <th data-en="Revenue" data-ar="الإيرادات">Revenue</th>
+                </tr>
+              </thead>
+              <tbody id="adm-topsellers-tbody">
+                <!-- Rendered by JS -->
+              </tbody>
+            </table>
+          </div>
         </div>
 
         <div class="admin-card">
@@ -586,21 +666,23 @@
           <h3 class="admin-card-title" data-en="Live Orders Pipeline" data-ar="خط سير الطلبات الحية">Live Orders Pipeline</h3>
           <span class="refresh-indicator" onclick="loadAdminOrders()">🔄 <span data-en="Sync" data-ar="مزامنة">Sync</span></span>
         </div>
-        <table class="admin-table">
-          <thead>
-            <tr>
-              <th data-en="Order ID" data-ar="رقم الطلب">Order ID</th>
-              <th data-en="Customer" data-ar="العميل">Customer</th>
-              <th data-en="Items" data-ar="الأصناف">Items</th>
-              <th data-en="Total" data-ar="الإجمالي">Total</th>
-              <th data-en="Status Action" data-ar="تحديث الحالة">Status Action</th>
-              <th data-en="Track" data-ar="تتبع">Track</th>
-            </tr>
-          </thead>
-          <tbody id="adm-orders-tbody">
-            <!-- Rendered by JS -->
-          </tbody>
-        </table>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th data-en="Order ID" data-ar="رقم الطلب">Order ID</th>
+                <th data-en="Customer" data-ar="العميل">Customer</th>
+                <th data-en="Items" data-ar="الأصناف">Items</th>
+                <th data-en="Total" data-ar="الإجمالي">Total</th>
+                <th data-en="Status Action" data-ar="تحديث الحالة">Status Action</th>
+                <th data-en="Track" data-ar="تتبع">Track</th>
+              </tr>
+            </thead>
+            <tbody id="adm-orders-tbody">
+              <!-- Rendered by JS -->
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
 
@@ -611,21 +693,23 @@
           <h3 class="admin-card-title" data-en="Bakery Menu &amp; Inventory" data-ar="قائمة المخبوزات والمخزون">Bakery Menu &amp; Inventory</h3>
           <button class="btn-primary btn-sm" onclick="openAddProductModal()" data-en="+ Add Item" data-ar="+ إضافة صنف">+ Add Item</button>
         </div>
-        <table class="admin-table">
-          <thead>
-            <tr>
-              <th data-en="Item" data-ar="الصنف">Item</th>
-              <th data-en="Category" data-ar="التصنيف">Category</th>
-              <th data-en="Price" data-ar="السعر">Price</th>
-              <th data-en="Stock" data-ar="المخزون">Stock</th>
-              <th data-en="Status" data-ar="الحالة">Status</th>
-              <th data-en="Actions" data-ar="الإجراءات">Actions</th>
-            </tr>
-          </thead>
-          <tbody id="adm-catalog-tbody">
-            <!-- Rendered by JS -->
-          </tbody>
-        </table>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th data-en="Item" data-ar="الصنف">Item</th>
+                <th data-en="Category" data-ar="التصنيف">Category</th>
+                <th data-en="Price" data-ar="السعر">Price</th>
+                <th data-en="Stock" data-ar="المخزون">Stock</th>
+                <th data-en="Status" data-ar="الحالة">Status</th>
+                <th data-en="Actions" data-ar="الإجراءات">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="adm-catalog-tbody">
+              <!-- Rendered by JS -->
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
 
@@ -830,7 +914,7 @@
 
   <!-- ADMIN AUTH / PIN ACCESS MODAL -->
   <div class="modal-backdrop" id="admin-auth-modal" style="display:none;" onclick="if(event.target===this)closeAdminAuthModal()">
-    <div class="modal-card" style="max-width:400px;text-align:center;">
+    <div class="modal-card modal-pin-card">
       <div class="modal-header">
         <h3 data-en="🔒 Staff &amp; Admin Access" data-ar="🔒 بوابة الإدارة والموظفين">🔒 Staff &amp; Admin Access</h3>
         <button class="modal-close-btn" onclick="closeAdminAuthModal()">&times;</button>
@@ -911,7 +995,7 @@
           </div>
           <div class="form-group">
             <label data-en="Product Image (URL or Local Path)" data-ar="صورة المنتج (رابط أو مسار)">Product Image (URL or Local Path)</label>
-            <div style="display:flex;gap:10px;align-items:center;">
+            <div class="img-input-row">
               <input type="text" class="form-input" id="pm-img-url" placeholder="images/croissant.jpg or https://..." oninput="previewProductModalImg(this.value)" />
               <input type="file" id="pm-img-file" accept="image/*" style="display:none;" onchange="handleProductImgFileUpload(event)" />
               <button type="button" class="btn-secondary btn-sm" onclick="document.getElementById('pm-img-file').click()" data-en="📁 Upload" data-ar="📁 رفع صورة">📁 Upload</button>
@@ -947,6 +1031,33 @@
   <!-- TOAST ALERTS -->
   <div class="toast" id="toast"></div>
 
+  <!-- MOBILE BOTTOM NAVIGATION (App Style) -->
+  <nav class="mobile-bottom-nav" id="mobile-bottom-nav" aria-label="Mobile Bottom Navigation">
+    <button class="mbn-item active" data-page="home" onclick="showPage('home',null)">
+      <span class="mbn-icon">🏠</span>
+      <span class="mbn-label" data-en="Home" data-ar="الرئيسية">Home</span>
+    </button>
+    <button class="mbn-item" data-page="products" onclick="showPage('products',null)">
+      <span class="mbn-icon">🥐</span>
+      <span class="mbn-label" data-en="Menu" data-ar="القائمة">Menu</span>
+    </button>
+    <button class="mbn-item mbn-cart" data-page="cart" onclick="showPage('cart',null)">
+      <div class="mbn-cart-icon-wrap">
+        <span class="mbn-icon">🛍️</span>
+        <span class="mbn-badge" id="mbn-cart-badge">0</span>
+      </div>
+      <span class="mbn-label" data-en="Cart" data-ar="السلة">Cart</span>
+    </button>
+    <button class="mbn-item" data-page="orders" onclick="showPage('orders',null)">
+      <span class="mbn-icon">📦</span>
+      <span class="mbn-label" data-en="Orders" data-ar="طلباتي">Orders</span>
+    </button>
+    <button class="mbn-item" id="mbn-account-btn" onclick="toggleMobileMenu()">
+      <span class="mbn-icon" id="mbn-account-icon">👤</span>
+      <span class="mbn-label" id="mbn-account-label" data-en="Profile" data-ar="حسابي">Profile</span>
+    </button>
+  </nav>
+
   <!-- FOOTER -->
   <footer class="footer">
     <div class="footer-content">
@@ -956,7 +1067,7 @@
             <circle cx="28" cy="28" r="26" fill="none" stroke="#C9963A" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.7"/>
             <circle cx="28" cy="28" r="22" fill="#2A1C14" />
             <path d="M20 22 L22 17 L25 21 L28 15 L31 21 L34 17 L36 22 Z" fill="#E5C158"/>
-            <path d="M16 32 Q18 26 28 28 Q38 30 40 32 Q38 38 28 36 Q18 38 16 32Z" fill="#C9963A" />
+            <path d="M16 32 Q18 26 28 28 Q38 30 40 32 Q38 38 28 36 Q18 38 16 32Z" fill="#C9963A"/>
             <path d="M20 30 Q24 27 30 29" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1.2" stroke-linecap="round"/>
             <path d="M44 20 L44.5 18 L45 20 L47 20.5 L45 21 L44.5 23 L44 21 L42 20.5 Z" fill="#E5C158" opacity="0.9"/>
           </svg>
