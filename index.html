@@ -16,7 +16,7 @@
 </head>
 <body>
 
-  <!-- NAVBAR -->
+  <!-- NAVBAR (Customer View) -->
   <nav class="navbar" id="navbar">
     <div class="nav-brand" onclick="showPage('home',null)">
       <!-- Fantasy SVG Logo -->
@@ -54,14 +54,50 @@
     <ul class="nav-links" id="nav-links">
       <li><a href="#" class="nav-link active" data-page="home" onclick="showPage('home',this);return false" data-en="Home" data-ar="الرئيسية">Home</a></li>
       <li><a href="#" class="nav-link" data-page="products" onclick="showPage('products',this);return false" data-en="Menu" data-ar="القائمة">Menu</a></li>
-      <li><a href="#" class="nav-link" data-page="orders" onclick="showPage('orders',this);return false" data-en="My Orders" data-ar="طلباتي">My Orders</a></li>
-      <li><a href="#" class="nav-link" data-page="admin" onclick="showPage('admin',this);return false" data-en="Admin Portal" data-ar="لوحة التحكم">Admin Portal</a></li>
-      <li><a href="#" class="nav-link" data-page="login" onclick="showPage('login',this);return false" id="nav-auth-link" data-en="Sign In" data-ar="تسجيل الدخول">Sign In</a></li>
+      <li id="nav-item-orders"><a href="#" class="nav-link" data-page="orders" onclick="showPage('orders',this);return false" data-en="My Orders" data-ar="طلباتي">My Orders</a></li>
+      <li id="nav-item-admin" style="display:none;"><a href="#" class="nav-link nav-admin-link" data-page="admin" onclick="showPage('admin',this);return false" data-en="👑 Admin Portal" data-ar="👑 لوحة التحكم">👑 Admin Portal</a></li>
     </ul>
     <div class="nav-right">
-      <!-- Cloud DB Status Pill -->
-      <span class="cloud-badge-online" id="cloud-status-badge" onclick="showPage('admin',document.querySelector('[data-page=admin]'));switchAdminTab('clouddb',document.getElementById('tab-btn-clouddb'));" title="Free Cloud Database Status">🟢 Cloud DB Online</span>
-
+      <!-- User Auth / Profile Area -->
+      <div id="nav-auth-container" class="nav-auth-container">
+        <!-- Guest View -->
+        <a href="#" class="nav-link nav-signin-btn" data-page="login" onclick="showPage('login',this);return false" id="nav-auth-link" data-en="Sign In" data-ar="تسجيل الدخول">Sign In</a>
+        <!-- User Profile Dropdown (Populated by JS when logged in) -->
+        <div class="user-menu-wrap" id="nav-user-menu" style="display:none;">
+          <button class="user-profile-chip" id="user-profile-btn" onclick="toggleUserDropdown(event)">
+            <span class="user-avatar" id="nav-user-avatar">👩</span>
+            <div class="user-chip-text">
+              <span class="user-chip-name" id="nav-user-name">Sarah M.</span>
+              <span class="user-role-badge badge-user" id="nav-user-role-badge">Customer</span>
+            </div>
+            <span class="chip-caret">▾</span>
+          </button>
+          <div class="user-dropdown-menu" id="user-dropdown-menu">
+            <div class="user-dropdown-header">
+              <div class="udh-avatar" id="dd-user-avatar">👩</div>
+              <div>
+                <div class="udh-name" id="dd-user-name">Sarah Mansour</div>
+                <div class="udh-email" id="dd-user-email">sarah@example.com</div>
+                <div class="udh-role" id="dd-user-role">Customer Account</div>
+              </div>
+            </div>
+            <div class="user-dropdown-divider"></div>
+            <a href="#" class="user-dd-item" onclick="showPage('orders',null);closeUserDropdown();return false;">
+              <span>📦</span> <span data-en="My Orders & Tracking" data-ar="طلباتي والتتبع">My Orders & Tracking</span>
+            </a>
+            <a href="#" class="user-dd-item" onclick="openLoyaltyModal();closeUserDropdown();return false;">
+              <span>✨</span> <span data-en="Loyalty Rewards" data-ar="مكافآت الولاء">Loyalty Rewards</span>
+            </a>
+            <a href="#" class="user-dd-item admin-only-item" id="dd-admin-link" style="display:none;" onclick="showPage('admin',null);closeUserDropdown();return false;">
+              <span>👑</span> <span data-en="Admin Portal" data-ar="لوحة التحكم الإدارية">Admin Portal</span>
+            </a>
+            <div class="user-dropdown-divider"></div>
+            <button class="user-dd-logout-btn" onclick="handleLogout()">
+              <span>🚪</span> <span data-en="Sign Out" data-ar="تسجيل الخروج">Sign Out</span>
+            </button>
+          </div>
+        </div>
+      </div>
       <!-- Loyalty Points Pill -->
       <div class="loyalty-pill" onclick="openLoyaltyModal()" title="Ola Golden Crumbs Rewards">
         <span class="loyalty-icon">✨</span>
@@ -455,7 +491,7 @@
     </div>
   </div>
 
-  <!-- ADMIN PORTAL PAGE -->
+  <!-- PROTECTED ADMIN PORTAL PAGE -->
   <div id="page-admin" class="page">
     <div class="admin-top-bar">
       <div>
@@ -465,6 +501,7 @@
       <div class="admin-top-actions">
         <button class="btn-secondary" onclick="simulateNewOrder()" data-en="+ Simulate Influx Order" data-ar="+ محاكاة طلب جديد">+ Simulate Influx Order</button>
         <button class="btn-primary" onclick="openAddProductModal()" data-en="+ Add New Product" data-ar="+ إضافة منتج جديد">+ Add New Product</button>
+        <button class="btn-ghost" onclick="lockAdminSession()" title="Lock Admin Portal" data-en="🔒 Lock Admin" data-ar="🔒 قفل اللوحة">🔒 Lock Admin</button>
       </div>
     </div>
 
@@ -683,16 +720,54 @@
             <path d="M44 20 L44.5 18 L45 20 L47 20.5 L45 21 L44.5 23 L44 21 L42 20.5 Z" fill="#E5C158" opacity="0.9"/>
           </svg>
         </div>
-        <h1 class="auth-title" data-en="Welcome Back" data-ar="مرحباً بعودتك">Welcome Back</h1>
-        <p class="auth-sub" data-en="Sign in to continue your delicious journey" data-ar="سجل دخولك لمواصلة رحلتك اللذيذة">Sign in to continue your delicious journey</p>
+        <h1 class="auth-title" data-en="Sign In / Choose Access" data-ar="تسجيل الدخول / اختيار الصلاحية">Sign In / Choose Access</h1>
+        <p class="auth-sub" data-en="Select a quick demo role or enter your credentials" data-ar="اختر حساباً تجريبياً أو أدخل بياناتك للمتابعة">Select a quick demo role or enter your credentials</p>
+
+        <!-- Quick 1-Click Role Access Buttons -->
+        <div class="quick-role-section">
+          <div class="quick-role-label" data-en="⚡ 1-Click Quick Demo Access" data-ar="⚡ دخول تجريبي فوري بنقرة واحدة">⚡ 1-Click Quick Demo Access</div>
+          <div class="quick-role-grid">
+            <button type="button" class="quick-role-card role-btn-admin" onclick="quickLogin('admin')" title="Full Admin & Bakery Management Portal">
+              <div class="qrc-icon">👑</div>
+              <div class="qrc-info">
+                <div class="qrc-name" data-en="Admin Access" data-ar="صلاحية الإدارة">Admin Access</div>
+                <div class="qrc-sub">admin@olasbakery.com</div>
+              </div>
+              <span class="qrc-tag" data-en="Full Control" data-ar="تحكم كامل">Full Control</span>
+            </button>
+
+            <button type="button" class="quick-role-card role-btn-user" onclick="quickLogin('user')" title="Customer Account with Orders & Loyalty Points">
+              <div class="qrc-icon">👩</div>
+              <div class="qrc-info">
+                <div class="qrc-name" data-en="Customer (Sarah)" data-ar="حساب عميل (سارة)">Customer (Sarah)</div>
+                <div class="qrc-sub">sarah@example.com · 340 Pts</div>
+              </div>
+              <span class="qrc-tag" data-en="User View" data-ar="واجهة العميل">User View</span>
+            </button>
+
+            <button type="button" class="quick-role-card role-btn-visitor" onclick="quickLogin('visitor')" title="Browse Menu & Cart without sign in">
+              <div class="qrc-icon">👁️</div>
+              <div class="qrc-info">
+                <div class="qrc-name" data-en="Visitor View" data-ar="واجهة الزائر">Visitor View</div>
+                <div class="qrc-sub" data-en="No sign-in · Browse Only" data-ar="تصفح فقط بدون تسجيل">No sign-in · Browse Only</div>
+              </div>
+              <span class="qrc-tag" data-en="Guest" data-ar="زائر">Guest</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="auth-divider-text">
+          <span data-en="or enter custom credentials" data-ar="أو أدخل بيانات حسابك">or enter custom credentials</span>
+        </div>
+
         <form class="auth-form" onsubmit="handleLogin(event)">
           <div class="form-group">
-            <label class="form-label" data-en="Email" data-ar="البريد الإلكتروني">Email</label>
+            <label class="form-label" data-en="Email Address" data-ar="البريد الإلكتروني">Email Address</label>
             <input class="form-input" id="login-email" type="email" value="sarah@example.com" placeholder="you@example.com" required />
           </div>
           <div class="form-group">
             <label class="form-label" data-en="Password" data-ar="كلمة المرور">Password</label>
-            <input class="form-input" id="login-password" type="password" value="secret123" placeholder="••••••••" required />
+            <input class="form-input" id="login-password" type="password" value="user123" placeholder="••••••••" required />
           </div>
           <button type="submit" class="btn-primary btn-full" data-en="Sign In" data-ar="تسجيل الدخول">Sign In</button>
         </form>
@@ -718,27 +793,56 @@
             <path d="M44 20 L44.5 18 L45 20 L47 20.5 L45 21 L44.5 23 L44 21 L42 20.5 Z" fill="#E5C158" opacity="0.9"/>
           </svg>
         </div>
-        <h1 class="auth-title" data-en="Create Account" data-ar="إنشاء حساب">Create Account</h1>
-        <p class="auth-sub" data-en="Join thousands of happy customers" data-ar="انضم إلى آلاف العملاء السعداء">Join thousands of happy customers</p>
+        <h1 class="auth-title" data-en="Create Account" data-ar="إنشاء حساب جديد">Create Account</h1>
+        <p class="auth-sub" data-en="Join Ola's Bakery &amp; earn 100 welcome reward points" data-ar="انضم لمخبز عُلا واحصل على ١٠٠ نقطة ترحيبية فوراً">Join Ola's Bakery &amp; earn 100 welcome reward points</p>
         <form class="auth-form" onsubmit="handleRegister(event)">
           <div class="form-group">
             <label class="form-label" data-en="Full Name" data-ar="الاسم الكامل">Full Name</label>
-            <input class="form-input" id="reg-name" type="text" placeholder="Jane Doe" required />
+            <input class="form-input" id="reg-name" type="text" placeholder="e.g. Layla Ahmed" required />
           </div>
           <div class="form-group">
-            <label class="form-label" data-en="Email" data-ar="البريد الإلكتروني">Email</label>
-            <input class="form-input" id="reg-email" type="email" placeholder="you@example.com" required />
+            <label class="form-label" data-en="Email Address" data-ar="البريد الإلكتروني">Email Address</label>
+            <input class="form-input" id="reg-email" type="email" placeholder="layla@example.com" required />
+          </div>
+          <div class="form-row-2">
+            <div class="form-group">
+              <label class="form-label" data-en="Phone Number" data-ar="رقم الهاتف">Phone Number</label>
+              <input class="form-input" id="reg-phone" type="tel" placeholder="+20 100 000 0000" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" data-en="Password" data-ar="كلمة المرور">Password</label>
+              <input class="form-input" id="reg-password" type="password" placeholder="••••••••" required />
+            </div>
           </div>
           <div class="form-group">
-            <label class="form-label" data-en="Password" data-ar="كلمة المرور">Password</label>
-            <input class="form-input" id="reg-password" type="password" placeholder="Min. 8 characters" required />
+            <label class="form-label" data-en="Delivery Address" data-ar="عنوان التوصيل">Delivery Address</label>
+            <input class="form-input" id="reg-address" type="text" placeholder="Street, Building, Area, Cairo" />
           </div>
-          <button type="submit" class="btn-primary btn-full" data-en="Create Account" data-ar="إنشاء حساب">Create Account</button>
+          <button type="submit" class="btn-primary btn-full" data-en="Create Account &amp; Get 100 Pts" data-ar="إنشاء حساب والحصول على ١٠٠ نقطة">Create Account &amp; Get 100 Pts</button>
         </form>
         <p class="auth-switch">
           <span data-en="Already have an account?" data-ar="لديك حساب بالفعل؟">Already have an account?</span>
           <a href="#" onclick="showPage('login',null);return false" data-en="Sign in" data-ar="سجل دخولك">Sign in</a>
         </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADMIN AUTH / PIN ACCESS MODAL -->
+  <div class="modal-backdrop" id="admin-auth-modal" style="display:none;" onclick="if(event.target===this)closeAdminAuthModal()">
+    <div class="modal-card" style="max-width:400px;text-align:center;">
+      <div class="modal-header">
+        <h3 data-en="🔒 Staff &amp; Admin Access" data-ar="🔒 بوابة الإدارة والموظفين">🔒 Staff &amp; Admin Access</h3>
+        <button class="modal-close-btn" onclick="closeAdminAuthModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="color:var(--text-muted);font-size:0.88rem;" data-en="Please enter the master admin PIN code to access the management portal and cloud database settings." data-ar="يرجى إدخال رمز المرور السري للإدارة للوصول إلى لوحة التحكم وإعدادات السحابة.">Please enter the master admin PIN code to access the management portal and cloud database settings.</p>
+        <form onsubmit="handleAdminUnlock(event)">
+          <div class="form-group" style="margin:16px 0;">
+            <input type="password" class="form-input" id="admin-pin-input" placeholder="Admin PIN (e.g. 2026)" style="text-align:center;font-size:1.4rem;letter-spacing:0.2em;font-weight:bold;" required autofocus />
+          </div>
+          <button type="submit" class="btn-primary btn-full" data-en="Unlock Portal 🔓" data-ar="فتح لوحة الإدارة 🔓">Unlock Portal 🔓</button>
+        </form>
       </div>
     </div>
   </div>
@@ -806,12 +910,30 @@
             </div>
           </div>
           <div class="form-group">
-            <label data-en="Stock Quantity" data-ar="كمية المخزون">Stock Quantity</label>
-            <input type="number" class="form-input" id="pm-stock" value="20" required />
+            <label data-en="Product Image (URL or Local Path)" data-ar="صورة المنتج (رابط أو مسار)">Product Image (URL or Local Path)</label>
+            <div style="display:flex;gap:10px;align-items:center;">
+              <input type="text" class="form-input" id="pm-img-url" placeholder="images/croissant.jpg or https://..." oninput="previewProductModalImg(this.value)" />
+              <input type="file" id="pm-img-file" accept="image/*" style="display:none;" onchange="handleProductImgFileUpload(event)" />
+              <button type="button" class="btn-secondary btn-sm" onclick="document.getElementById('pm-img-file').click()" data-en="📁 Upload" data-ar="📁 رفع صورة">📁 Upload</button>
+            </div>
+            <div id="pm-img-preview-wrap" style="margin-top:8px;display:none;align-items:center;gap:10px;">
+              <img id="pm-img-preview" src="" alt="Preview" style="width:50px;height:50px;object-fit:cover;border-radius:8px;border:1px solid var(--gold);" />
+              <small style="color:var(--text-muted);" data-en="Image ready" data-ar="تم اختيار الصورة">Image ready</small>
+            </div>
+          </div>
+          <div class="form-row-2">
+            <div class="form-group">
+              <label data-en="Stock Quantity" data-ar="كمية المخزون">Stock Quantity</label>
+              <input type="number" class="form-input" id="pm-stock" value="20" required />
+            </div>
+            <div class="form-group">
+              <label data-en="Product Emoji" data-ar="رمز الإيموجي">Product Emoji</label>
+              <input type="text" class="form-input" id="pm-emoji" value="🥐" maxlength="4" placeholder="🥐" />
+            </div>
           </div>
           <div class="form-group">
             <label data-en="Description (EN)" data-ar="الوصف (إنجليزي)">Description (EN)</label>
-            <textarea class="form-input" id="pm-desc-en" rows="2"></textarea>
+            <textarea class="form-input" id="pm-desc-en" rows="2" placeholder="Freshly baked with premium European butter..."></textarea>
           </div>
           <div class="form-actions-inline">
             <button type="submit" class="btn-primary" data-en="Save Product" data-ar="حفظ المنتج">Save Product</button>
@@ -844,8 +966,8 @@
           </div>
         </div>
         <p style="color:#6b5a4e;font-size:.9rem;max-width:220px" data-en="Freshly baked happiness, delivered to your door." data-ar="سعادة مخبوزة طازجة، تصل إلى بابك.">Freshly baked happiness, delivered to your door.</p>
-        <div style="margin-top:12px;">
-          <span class="cloud-badge-online" id="footer-cloud-badge">🟢 Cloud DB Online</span>
+        <div style="margin-top:14px;">
+          <a href="#" onclick="openAdminAccessModal();return false;" style="color:#a8978b;font-size:0.75rem;text-decoration:none;" title="Restricted to staff only">Staff Access 🔒</a>
         </div>
       </div>
       <div class="footer-links">
