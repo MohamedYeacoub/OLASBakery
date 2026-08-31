@@ -148,9 +148,309 @@ let NOTIFICATIONS = [
   { id: 'n3', titleEn: '🥐 Fresh Croissants just out of oven', titleAr: '🥐 كرواسان طازج خرج للتو من الفرن', time: '3h ago', unread: false }
 ];
 
+// ==================== MULTI-ROLE & USER ACCESS SYSTEM ====================
+// Roles supported:
+// 1. 'visitor' -> Public browsing, Menu, Product Detail, Cart, Guest tracking (No admin tools)
+// 2. 'user'    -> Signed in customer, Orders history, Golden Crumbs loyalty, Reviews, Profile (No admin tools)
+// 3. 'admin'   -> Master administrator, Bakery Management Portal, Catalog CRUD, Live Orders Queue, Analytics, Cloud sync
+
+const DEFAULT_USERS = [
+  {
+    id: 'usr-admin',
+    name: 'Master Baker & Admin',
+    email: 'admin@olasbakery.com',
+    password: 'admin',
+    role: 'admin',
+    phone: '+20 100 000 0000',
+    address: 'Ola Flagship Bakery Hub, Zamalek',
+    avatar: '👑',
+    loyaltyPoints: 950
+  },
+  {
+    id: 'usr-sarah',
+    name: 'Sarah Mansour',
+    email: 'sarah@example.com',
+    password: 'user123',
+    role: 'user',
+    phone: '+20 100 123 4567',
+    address: '15 Tahrir St, Downtown, Cairo',
+    avatar: '👩',
+    loyaltyPoints: 340
+  },
+  {
+    id: 'usr-karim',
+    name: 'Karim Hassan',
+    email: 'karim@example.com',
+    password: 'user123',
+    role: 'user',
+    phone: '+20 101 555 1234',
+    address: '9 Road 254, Degla, Maadi',
+    avatar: '👨',
+    loyaltyPoints: 120
+  }
+];
+
+let userAccounts = JSON.parse(localStorage.getItem('bakery_users') || JSON.stringify(DEFAULT_USERS));
+
+// Current user state (null represents Visitor View - no sign in)
+let currentUser = (function() {
+  const saved = localStorage.getItem('bakery_current_user');
+  if (saved === 'null') return null;
+  if (saved) {
+    try { return JSON.parse(saved); } catch (e) { return null; }
+  }
+  // Default on first visit: Visitor View (Not signed in, public browsing)
+  return null;
+})();
+
+let isAdminAuthenticated = currentUser ? (currentUser.role === 'admin') : false;
+const ADMIN_MASTER_PIN = '2026';
+
+function getUserRole() {
+  if (!currentUser) return 'visitor';
+  return currentUser.role || 'user';
+}
+
+// Interactive Role / View Switcher
+function switchRoleView(role) {
+  if (role === 'visitor') {
+    currentUser = null;
+    localStorage.setItem('bakery_current_user', 'null');
+    isAdminAuthenticated = false;
+    sessionStorage.removeItem('bakery_admin_auth');
+    showToast(currentLang === 'ar' ? '👁️ تم التبديل إلى: واجهة الزائر (تصفح بدون تسجيل)' : '👁️ Switched to: Visitor View (Browse Only, No Admin Tools)', 'info');
+    if (document.getElementById('page-admin') && document.getElementById('page-admin').classList.contains('active')) {
+      showPage('home', document.querySelector('[data-page=home]'));
+    }
+  } else if (role === 'user') {
+    const sarah = userAccounts.find(u => u.email === 'sarah@example.com') || userAccounts[1];
+    currentUser = sarah;
+    localStorage.setItem('bakery_current_user', JSON.stringify(sarah));
+    isAdminAuthenticated = false;
+    sessionStorage.removeItem('bakery_admin_auth');
+    userLoyaltyPoints = sarah.loyaltyPoints || 340;
+    updateLoyaltyDisplay();
+    showToast(currentLang === 'ar' ? `👩 تم التبديل إلى: حساب عميل (${sarah.name})` : `👩 Switched to: Customer View (${sarah.name})`, 'success');
+    if (document.getElementById('page-admin') && document.getElementById('page-admin').classList.contains('active')) {
+      showPage('home', document.querySelector('[data-page=home]'));
+    }
+  } else if (role === 'admin') {
+    const adminUser = userAccounts.find(u => u.role === 'admin') || userAccounts[0];
+    currentUser = adminUser;
+    localStorage.setItem('bakery_current_user', JSON.stringify(adminUser));
+    isAdminAuthenticated = true;
+    sessionStorage.setItem('bakery_admin_auth', 'true');
+    showToast(currentLang === 'ar' ? '👑 تم تسجيل دخول الإدارة (التحكم الكامل)' : '👑 Admin Access Enabled (Full Control)', 'success');
+  }
+
+  updateAuthUI();
+  updateAdminNavVisibility();
+  if (document.getElementById('page-orders') && document.getElementById('page-orders').classList.contains('active')) {
+    renderOrders();
+  }
+}
+
+function quickLogin(role) {
+  switchRoleView(role);
+  if (role === 'admin') {
+    showPage('admin', null);
+  } else {
+    showPage('home', document.querySelector('[data-page=home]'));
+  }
+}
+
+function populateUserProfileData(user, roleName) {
+  const navAvatar = document.getElementById('nav-user-avatar');
+  const navName = document.getElementById('nav-user-name');
+  const navRoleBadge = document.getElementById('nav-user-role-badge');
+  const ddAvatar = document.getElementById('dd-user-avatar');
+  const ddName = document.getElementById('dd-user-name');
+  const ddEmail = document.getElementById('dd-user-email');
+  const ddRole = document.getElementById('dd-user-role');
+
+  if (navAvatar) navAvatar.textContent = user.avatar || (user.role === 'admin' ? '👑' : '👤');
+  if (navName) navName.textContent = user.name.split(' ')[0];
+  if (navRoleBadge) {
+    navRoleBadge.textContent = user.role === 'admin' ? (currentLang === 'ar' ? 'إدارة' : 'Admin') : (currentLang === 'ar' ? 'عميل' : 'Customer');
+    navRoleBadge.className = 'user-role-badge ' + (user.role === 'admin' ? 'badge-admin' : 'badge-user');
+  }
+
+  if (ddAvatar) ddAvatar.textContent = user.avatar || (user.role === 'admin' ? '👑' : '👤');
+  if (ddName) ddName.textContent = user.name;
+  if (ddEmail) ddEmail.textContent = user.email;
+  if (ddRole) ddRole.textContent = user.role === 'admin' ? 'Master Admin' : 'Customer Member';
+
+  // Mobile Drawer sync
+  const drawerAvatar = document.getElementById('drawer-avatar');
+  const drawerName = document.getElementById('drawer-name');
+  const drawerRole = document.getElementById('drawer-role');
+  const drawerAuthBtn = document.getElementById('drawer-auth-btn');
+  const mbnAccountIcon = document.getElementById('mbn-account-icon');
+  const mbnAccountLabel = document.getElementById('mbn-account-label');
+
+  if (drawerAvatar) drawerAvatar.textContent = user.avatar || (user.role === 'admin' ? '👑' : '👤');
+  if (drawerName) drawerName.textContent = user.name;
+  if (drawerRole) drawerRole.textContent = user.role === 'admin' ? (currentLang === 'ar' ? '👑 مدير المخبز' : '👑 Master Admin') : (currentLang === 'ar' ? '👩 عميل مميز' : '👩 VIP Customer');
+  if (drawerAuthBtn) {
+    drawerAuthBtn.textContent = currentLang === 'ar' ? 'خروج' : 'Sign Out';
+    drawerAuthBtn.onclick = () => { handleLogout(); closeMobileMenu(); };
+  }
+  if (mbnAccountIcon) mbnAccountIcon.textContent = user.avatar || (user.role === 'admin' ? '👑' : '👤');
+  if (mbnAccountLabel) mbnAccountLabel.textContent = user.name.split(' ')[0];
+}
+
+function updateAuthUI() {
+  const guestLink = document.getElementById('nav-auth-link');
+  const userMenu = document.getElementById('nav-user-menu');
+  const navAdminItem = document.getElementById('nav-item-admin');
+  const ddAdminLink = document.getElementById('dd-admin-link');
+  const drawerAdminLink = document.getElementById('drawer-admin-link');
+
+  const drawerAvatar = document.getElementById('drawer-avatar');
+  const drawerName = document.getElementById('drawer-name');
+  const drawerRole = document.getElementById('drawer-role');
+  const drawerAuthBtn = document.getElementById('drawer-auth-btn');
+  const mbnAccountIcon = document.getElementById('mbn-account-icon');
+  const mbnAccountLabel = document.getElementById('mbn-account-label');
+
+  if (!currentUser) {
+    // VISITOR VIEW (Default for guests)
+    if (guestLink) guestLink.style.display = 'block';
+    if (userMenu) userMenu.style.display = 'none';
+    if (navAdminItem) navAdminItem.style.display = 'none';
+    if (ddAdminLink) ddAdminLink.style.display = 'none';
+    if (drawerAdminLink) drawerAdminLink.style.display = 'none';
+
+    if (drawerAvatar) drawerAvatar.textContent = '👤';
+    if (drawerName) drawerName.textContent = currentLang === 'ar' ? 'زائر غير مسجل' : 'Guest Visitor';
+    if (drawerRole) drawerRole.textContent = currentLang === 'ar' ? 'تصفح عام' : 'Public Browsing';
+    if (drawerAuthBtn) {
+      drawerAuthBtn.textContent = currentLang === 'ar' ? 'دخول' : 'Sign In';
+      drawerAuthBtn.onclick = () => { showPage('login', null); closeMobileMenu(); };
+    }
+    if (mbnAccountIcon) mbnAccountIcon.textContent = '👤';
+    if (mbnAccountLabel) mbnAccountLabel.textContent = currentLang === 'ar' ? 'حسابي' : 'Account';
+  } else if (currentUser.role === 'admin') {
+    // ADMIN VIEW
+    if (guestLink) guestLink.style.display = 'none';
+    if (userMenu) userMenu.style.display = 'block';
+    if (navAdminItem) navAdminItem.style.display = 'block';
+    if (ddAdminLink) ddAdminLink.style.display = 'flex';
+    if (drawerAdminLink) drawerAdminLink.style.display = 'flex';
+
+    populateUserProfileData(currentUser, 'Admin');
+  } else {
+    // USER VIEW
+    if (guestLink) guestLink.style.display = 'none';
+    if (userMenu) userMenu.style.display = 'block';
+    if (navAdminItem) navAdminItem.style.display = 'none';
+    if (ddAdminLink) ddAdminLink.style.display = 'none';
+    if (drawerAdminLink) drawerAdminLink.style.display = 'none';
+
+    populateUserProfileData(currentUser, 'Customer');
+  }
+}
+
+function toggleMobileMenu() {
+  const drawer = document.getElementById('mobile-drawer');
+  const backdrop = document.getElementById('mobile-drawer-backdrop');
+  if (drawer && backdrop) {
+    drawer.classList.toggle('show');
+    backdrop.classList.toggle('show');
+  }
+}
+
+function closeMobileMenu() {
+  const drawer = document.getElementById('mobile-drawer');
+  const backdrop = document.getElementById('mobile-drawer-backdrop');
+  if (drawer) drawer.classList.remove('show');
+  if (backdrop) backdrop.classList.remove('show');
+}
+
+function toggleUserDropdown(e) {
+  e.stopPropagation();
+  const menu = document.getElementById('user-dropdown-menu');
+  if (menu) menu.classList.toggle('show');
+}
+
+function closeUserDropdown() {
+  const menu = document.getElementById('user-dropdown-menu');
+  if (menu) menu.classList.remove('show');
+}
+
+document.addEventListener('click', (e) => {
+  const menu = document.getElementById('user-dropdown-menu');
+  const btn = document.getElementById('user-profile-btn');
+  if (menu && btn && !btn.contains(e.target) && !menu.contains(e.target)) {
+    menu.classList.remove('show');
+  }
+});
+
+function toggleRoleSwitcherCollapse() {
+  const widget = document.getElementById('role-switcher-widget');
+  const chevron = document.getElementById('rsw-chevron');
+  if (widget) {
+    widget.classList.toggle('collapsed');
+    if (chevron) chevron.textContent = widget.classList.contains('collapsed') ? '▴' : '▾';
+  }
+}
+
+function handleLogout() {
+  closeUserDropdown();
+  switchRoleView('visitor');
+  showToast(currentLang === 'ar' ? '👋 تم تسجيل الخروج بنجاح. أنت الآن في واجهة الزائر' : '👋 Signed out. You are now in Visitor view');
+  showPage('home', document.querySelector('[data-page=home]'));
+}
+
+function openAdminAccessModal() {
+  const modal = document.getElementById('admin-auth-modal');
+  if (modal) {
+    modal.style.display = 'flex';
+    const input = document.getElementById('admin-pin-input');
+    if (input) {
+      input.value = '';
+      input.focus();
+    }
+  }
+}
+
+function closeAdminAuthModal() {
+  const modal = document.getElementById('admin-auth-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+function handleAdminUnlock(e) {
+  e.preventDefault();
+  const input = document.getElementById('admin-pin-input');
+  if (!input) return;
+
+  const pin = input.value.trim();
+  if (pin === ADMIN_MASTER_PIN || pin === 'admin123' || pin === 'admin') {
+    closeAdminAuthModal();
+    switchRoleView('admin');
+    showToast(currentLang === 'ar' ? '🔓 تم فتح لوحة الإدارة بنجاح!' : '🔓 Admin Portal Unlocked!', 'success');
+    showPage('admin', document.querySelector('[data-page=admin]'));
+  } else {
+    showToast(currentLang === 'ar' ? 'رمز المرور غير صحيح ❌ (PIN: 2026)' : 'Incorrect Admin PIN ❌ (PIN: 2026)', 'error');
+  }
+}
+
+function lockAdminSession() {
+  switchRoleView('user');
+  showToast(currentLang === 'ar' ? '🔒 تم قفل لوحة الإدارة والعودة لحساب العميل' : '🔒 Admin Portal locked. Returned to User view');
+  showPage('home', document.querySelector('[data-page=home]'));
+}
+
+function updateAdminNavVisibility() {
+  const navItem = document.getElementById('nav-item-admin');
+  if (navItem) {
+    navItem.style.display = (currentUser && currentUser.role === 'admin') ? 'block' : 'none';
+  }
+}
+
 // ==================== FREE CLOUD DATABASE CONFIG & PROVIDER ====================
 const CLOUD_CONFIG = {
-  provider: localStorage.getItem('bakery_cloud_provider') || 'free_cloud_store', // 'supabase', 'firebase', 'free_cloud_store', 'local'
+  provider: localStorage.getItem('bakery_cloud_provider') || 'free_cloud_store',
   supabaseUrl: localStorage.getItem('bakery_supabase_url') || '',
   supabaseKey: localStorage.getItem('bakery_supabase_key') || '',
   customApiUrl: localStorage.getItem('bakery_custom_api_url') || 'http://localhost:5000/api',
@@ -159,29 +459,12 @@ const CLOUD_CONFIG = {
 
 const CloudDB = {
   async init() {
-    this.updateStatusBadge();
     await this.syncFromCloud();
-  },
-
-  updateStatusBadge() {
-    const badge = document.getElementById('cloud-status-badge');
-    const footerBadge = document.getElementById('footer-cloud-badge');
-    const text = CLOUD_CONFIG.isOnlineConnected ? '🟢 Free Cloud DB Connected' : '🟠 Local Offline Mode';
-    const textAr = CLOUD_CONFIG.isOnlineConnected ? '🟢 متصل بقاعدة السحابة المجانية' : '🟠 وضع غير متصل';
-    
-    if (badge) {
-      badge.textContent = currentLang === 'ar' ? textAr : text;
-      badge.className = CLOUD_CONFIG.isOnlineConnected ? 'cloud-badge-online' : 'cloud-badge-offline';
-    }
-    if (footerBadge) {
-      footerBadge.textContent = currentLang === 'ar' ? textAr : text;
-    }
   },
 
   async syncFromCloud() {
     try {
       if (CLOUD_CONFIG.provider === 'supabase' && CLOUD_CONFIG.supabaseUrl) {
-        // Fetch from free Supabase table
         const res = await fetch(`${CLOUD_CONFIG.supabaseUrl}/rest/v1/products?select=*`, {
           headers: {
             'apikey': CLOUD_CONFIG.supabaseKey,
@@ -196,7 +479,6 @@ const CloudDB = {
           }
         }
       } else if (CLOUD_CONFIG.provider === 'local') {
-        // Fetch from local Express server
         const res = await fetch(`${CLOUD_CONFIG.customApiUrl}/products`);
         if (res.ok) {
           const data = await res.json();
@@ -206,9 +488,8 @@ const CloudDB = {
       CLOUD_CONFIG.isOnlineConnected = true;
     } catch (e) {
       console.log('Cloud sync fallback to local storage:', e.message);
-      CLOUD_CONFIG.isOnlineConnected = true; // graceful fallback
+      CLOUD_CONFIG.isOnlineConnected = true;
     }
-    this.updateStatusBadge();
   },
 
   async saveOrderToCloud(newOrder) {
@@ -300,15 +581,18 @@ function toggleLang() {
 function applyLanguage() {
   const html = document.getElementById('html-root');
   const langLabel = document.getElementById('lang-label');
+  const drawerLangLabel = document.getElementById('drawer-lang-label');
 
   if (currentLang === 'ar') {
     html.setAttribute('lang', 'ar');
     html.setAttribute('dir', 'rtl');
     if (langLabel) langLabel.textContent = 'English';
+    if (drawerLangLabel) drawerLangLabel.textContent = 'Switch to English 🌐';
   } else {
     html.setAttribute('lang', 'en');
     html.setAttribute('dir', 'ltr');
     if (langLabel) langLabel.textContent = 'عربي';
+    if (drawerLangLabel) drawerLangLabel.textContent = 'التحويل إلى العربية 🌐';
   }
 
   // Update text with data-en & data-ar
@@ -327,7 +611,7 @@ function applyLanguage() {
   renderBestSellers();
   renderNotifications();
   updateLoyaltyDisplay();
-  CloudDB.updateStatusBadge();
+  updateAdminNavVisibility();
 
   if (document.getElementById('page-products').classList.contains('active')) {
     renderProducts(currentFilter);
@@ -409,10 +693,12 @@ function updateLoyaltyDisplay() {
   const navPts = document.getElementById('nav-loyalty-pts');
   const cartPts = document.getElementById('cart-loyalty-pts');
   const modalPts = document.getElementById('modal-loyalty-pts');
+  const drawerPts = document.getElementById('drawer-loyalty-pts');
 
   if (navPts) navPts.textContent = userLoyaltyPoints;
   if (cartPts) cartPts.textContent = userLoyaltyPoints;
   if (modalPts) modalPts.textContent = userLoyaltyPoints;
+  if (drawerPts) drawerPts.textContent = `${userLoyaltyPoints} Pts`;
   localStorage.setItem('bakery_loyalty_pts', userLoyaltyPoints.toString());
 }
 
@@ -441,7 +727,9 @@ function saveCart() {
 function updateCartBadge() {
   const total = cart.reduce((s, i) => s + i.qty, 0);
   const el = document.getElementById('cart-badge');
+  const mbnEl = document.getElementById('mbn-cart-badge');
   if (el) el.textContent = total;
+  if (mbnEl) mbnEl.textContent = total;
 }
 
 function applyCoupon() {
@@ -546,17 +834,37 @@ function updateSummary() {
 
 // ===== PAGE NAVIGATION =====
 function showPage(pageId, linkEl) {
+  // If attempting to visit protected admin page without auth, prompt PIN
+  if (pageId === 'admin' && !isAdminAuthenticated) {
+    openAdminAccessModal();
+    return;
+  }
+
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   const target = document.getElementById('page-' + pageId);
   if (target) target.classList.add('active');
 
+  // Update desktop nav links
   document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-  if (linkEl) {
+  if (linkEl && linkEl.classList.contains('nav-link')) {
     linkEl.classList.add('active');
   } else {
     const matching = document.querySelector(`.nav-link[data-page="${pageId}"]`);
     if (matching) matching.classList.add('active');
   }
+
+  // Update mobile drawer links
+  document.querySelectorAll('.drawer-link').forEach(l => l.classList.remove('active'));
+  const matchingDrawer = document.querySelector(`.drawer-link[data-page="${pageId}"]`);
+  if (matchingDrawer) matchingDrawer.classList.add('active');
+
+  // Update mobile bottom nav links
+  document.querySelectorAll('.mbn-item').forEach(m => m.classList.remove('active'));
+  const matchingMbn = document.querySelector(`.mbn-item[data-page="${pageId}"]`);
+  if (matchingMbn) matchingMbn.classList.add('active');
+
+  // Automatically close mobile menu drawer if open
+  closeMobileMenu();
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
 
@@ -600,15 +908,16 @@ function productImgHTML(p, size = 'card') {
 function productCardHTML(p) {
   const badgeText = p.badge ? (p.badge[currentLang] || p.badge.en) : null;
   const badgeHTML = badgeText ? `<div class="card-badge">${badgeText}</div>` : '';
-  const pName = p.name[currentLang] || p.name.en;
-  const pCategory = p.category[currentLang] || p.category.en;
-  const pDesc = p.description[currentLang] || p.description.en;
+  const adminEditBtn = (currentUser && currentUser.role === 'admin')
+    ? `<button class="card-admin-edit-btn" onclick="event.stopPropagation();editProduct('${p.id}')" title="Edit Product & Image">✏️ Edit</button>`
+    : '';
 
   return `
     <div class="product-card" id="card-${p.id}" onclick="showDetail('${p.id}')">
       <div class="card-img-wrap">
         ${productImgHTML(p, 'card')}
         ${badgeHTML}
+        ${adminEditBtn}
       </div>
       <div class="card-body">
         <div class="card-cat">${pCategory}</div>
@@ -993,13 +1302,51 @@ function renderOrders() {
   const container = document.getElementById('orders-container');
   if (!container) return;
 
+  // VISITOR VIEW
+  if (!currentUser) {
+    container.innerHTML = `
+      <div class="visitor-orders-card">
+        <div class="voc-icon">📦</div>
+        <h3 class="voc-title" data-en="Track Order as Guest or Sign In" data-ar="تتبع طلبك كزائر أو سجل دخولك">Track Order as Guest or Sign In</h3>
+        <p class="voc-sub" data-en="Sign in to see your personalized delivery history &amp; earn Golden Crumbs, or enter an Order ID below to track a live delivery right now." data-ar="سجل دخولك لعرض سجل طلباتك ونقاط الولاء، أو أدخل رقم الطلب بالأسفل لتتبع التوصيل المباشر الآن.">Sign in to see your personalized delivery history &amp; earn Golden Crumbs, or enter an Order ID below to track a live delivery right now.</p>
+        
+        <div class="voc-lookup-box">
+          <div class="voc-input-wrap">
+            <input type="text" id="guest-order-input" class="form-input" placeholder="e.g. ORD-8821" value="ORD-8821" />
+            <button class="btn-primary" onclick="trackGuestOrder()" data-en="Track Delivery 🛵" data-ar="تتبع التوصيل 🛵">Track Delivery 🛵</button>
+          </div>
+        </div>
+
+        <div class="voc-cta-row">
+          <button class="btn-secondary" onclick="showPage('login',document.querySelector('[data-page=login]'))" data-en="🔑 Sign In to View All Orders" data-ar="🔑 تسجيل الدخول لعرض كافة الطلبات">🔑 Sign In to View All Orders</button>
+          <button class="btn-ghost" onclick="showPage('products',document.querySelector('[data-page=products]'))" data-en="Browse Fresh Bakery Menu →" data-ar="تصفح قائمة المخبوزات ←">Browse Fresh Bakery Menu →</button>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  // SIGNED IN USER OR ADMIN VIEW
   if (orders.length === 0) {
-    const emptyText = currentLang === 'ar' ? 'لا توجد طلبات سابقة. اطلب الآن واستمتع!' : 'No orders yet. Place your first order!';
+    const emptyText = currentLang === 'ar' ? 'لا توجد طلبات سابقة بعد. اطلب الآن واستمتع!' : 'No orders yet. Place your first order!';
     container.innerHTML = `<div class="orders-empty"><div class="orders-empty-icon">📦</div><p>${emptyText}</p></div>`;
     return;
   }
 
-  container.innerHTML = orders.map(o => {
+  const userRoleBadge = currentUser.role === 'admin' ? '<span class="status-badge delivered" style="margin-left:8px;">All Bakery Orders (Admin)</span>' : '';
+
+  container.innerHTML = `
+    <div class="orders-user-header">
+      <div>
+        <span style="color:var(--text-muted);font-size:0.9rem;" data-en="Logged in as" data-ar="مسجل بحساب">Logged in as</span>
+        <b style="color:var(--chocolate);margin-left:4px;">${currentUser.name}</b>
+        ${userRoleBadge}
+      </div>
+      <div style="color:var(--gold);font-weight:700;font-size:0.9rem;">
+        ✨ ${userLoyaltyPoints} <span data-en="Reward Points" data-ar="نقطة مكافآت">Reward Points</span>
+      </div>
+    </div>
+  ` + orders.map(o => {
     const itemsText = currentLang === 'ar' ? (o.itemsAr || o.items) : o.items;
     const totalText = typeof o.total === 'number' ? formatPrice(o.total) : o.total;
     const trackBtnText = currentLang === 'ar' ? 'تتبع مباشر 🚚' : 'Track Live 🚚';
@@ -1022,6 +1369,22 @@ function renderOrders() {
   }).join('');
 }
 
+function trackGuestOrder() {
+  const input = document.getElementById('guest-order-input');
+  if (!input) return;
+  const orderId = input.value.trim().toUpperCase();
+  if (!orderId) {
+    showToast(currentLang === 'ar' ? 'يرجى إدخال رقم الطلب' : 'Please enter an Order ID', 'error');
+    return;
+  }
+  const order = orders.find(o => o.id.toUpperCase() === orderId) || orders[0];
+  if (order) {
+    openOrderTracker(order.id);
+  } else {
+    showToast(currentLang === 'ar' ? 'الطلب غير موجود. جرب ORD-8821' : 'Order not found. Try ORD-8821', 'error');
+  }
+}
+
 function openOrderTracker(orderId) {
   renderTrackingPage(orderId);
   showPage('tracking', null);
@@ -1037,7 +1400,6 @@ function switchAdminTab(tabId, btn) {
 }
 
 function loadAdminData() {
-  // Update Analytics KPIs
   const totalRev = orders.reduce((s, o) => s + (typeof o.total === 'number' ? o.total : 0), 14250.0);
   const revEl = document.getElementById('adm-revenue');
   const countEl = document.getElementById('adm-orders-count');
@@ -1047,7 +1409,6 @@ function loadAdminData() {
   if (countEl) countEl.textContent = (orders.length + 84).toString();
   if (actEl) actEl.textContent = orders.filter(o => o.status !== 'DELIVERED').length.toString();
 
-  // Render Top Sellers
   const topSellersTbody = document.getElementById('adm-topsellers-tbody');
   if (topSellersTbody) {
     topSellersTbody.innerHTML = `
@@ -1058,7 +1419,6 @@ function loadAdminData() {
     `;
   }
 
-  // Render Branch Activity
   const branchList = document.getElementById('adm-branch-activity');
   if (branchList) {
     branchList.innerHTML = `
@@ -1229,7 +1589,32 @@ async function testCloudConnection() {
   }, 600);
 }
 
-// Product Modal (Admin)
+// Product Modal (Admin) Image & CRUD Helpers
+function previewProductModalImg(url) {
+  const previewWrap = document.getElementById('pm-img-preview-wrap');
+  const previewImg = document.getElementById('pm-img-preview');
+  if (url && url.trim()) {
+    if (previewImg) previewImg.src = url.trim();
+    if (previewWrap) previewWrap.style.display = 'flex';
+  } else {
+    if (previewWrap) previewWrap.style.display = 'none';
+  }
+}
+
+function handleProductImgFileUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const dataUrl = e.target.result;
+    const input = document.getElementById('pm-img-url');
+    if (input) input.value = dataUrl;
+    previewProductModalImg(dataUrl);
+    showToast(currentLang === 'ar' ? '✓ تم تحميل الصورة للمنتج' : '✓ Product image uploaded', 'success');
+  };
+  reader.readAsDataURL(file);
+}
+
 function openAddProductModal() {
   document.getElementById('product-modal-title').textContent = currentLang === 'ar' ? 'إضافة منتج جديد' : 'Add Bakery Product';
   document.getElementById('pm-id').value = '';
@@ -1238,6 +1623,13 @@ function openAddProductModal() {
   document.getElementById('pm-price').value = '';
   document.getElementById('pm-stock').value = '20';
   document.getElementById('pm-desc-en').value = '';
+  
+  const imgInput = document.getElementById('pm-img-url');
+  if (imgInput) imgInput.value = '';
+  const emojiInput = document.getElementById('pm-emoji');
+  if (emojiInput) emojiInput.value = '🥐';
+  previewProductModalImg('');
+
   document.getElementById('product-modal').style.display = 'flex';
 }
 
@@ -1246,12 +1638,19 @@ function editProduct(id) {
   if (!p) return;
   document.getElementById('product-modal-title').textContent = currentLang === 'ar' ? 'تعديل المنتج' : 'Edit Bakery Product';
   document.getElementById('pm-id').value = p.id;
-  document.getElementById('pm-name-en').value = p.name.en;
-  document.getElementById('pm-name-ar').value = p.name.ar;
+  document.getElementById('pm-name-en').value = p.name.en || '';
+  document.getElementById('pm-name-ar').value = p.name.ar || '';
   document.getElementById('pm-category').value = p.categoryKey || 'Pastries';
   document.getElementById('pm-price').value = p.price;
   document.getElementById('pm-stock').value = p.stock || 20;
-  document.getElementById('pm-desc-en').value = p.description.en;
+  document.getElementById('pm-desc-en').value = (typeof p.description === 'object') ? (p.description.en || '') : p.description;
+  
+  const imgInput = document.getElementById('pm-img-url');
+  if (imgInput) imgInput.value = p.img || '';
+  const emojiInput = document.getElementById('pm-emoji');
+  if (emojiInput) emojiInput.value = p.emoji || '🥐';
+  previewProductModalImg(p.img || '');
+
   document.getElementById('product-modal').style.display = 'flex';
 }
 
@@ -1268,9 +1667,10 @@ function handleSaveProduct(e) {
   const price = parseFloat(document.getElementById('pm-price').value);
   const stock = parseInt(document.getElementById('pm-stock').value);
   const desc = document.getElementById('pm-desc-en').value;
+  const imgUrl = document.getElementById('pm-img-url') ? document.getElementById('pm-img-url').value.trim() : '';
+  const emoji = document.getElementById('pm-emoji') ? document.getElementById('pm-emoji').value.trim() : '🥐';
 
   if (id) {
-    // Edit
     const p = PRODUCTS.find(x => x.id === id);
     if (p) {
       p.name.en = nameEn;
@@ -1278,10 +1678,11 @@ function handleSaveProduct(e) {
       p.categoryKey = cat;
       p.price = price;
       p.stock = stock;
-      p.description.en = desc;
+      p.description = { en: desc, ar: desc };
+      p.img = imgUrl || null;
+      p.emoji = emoji || '🥐';
     }
   } else {
-    // Add
     const newP = {
       id: (PRODUCTS.length + 1).toString(),
       name: { en: nameEn, ar: nameAr },
@@ -1289,7 +1690,8 @@ function handleSaveProduct(e) {
       categoryKey: cat,
       price: price,
       description: { en: desc, ar: desc },
-      emoji: '🧁',
+      img: imgUrl || null,
+      emoji: emoji || '🧁',
       stock: stock
     };
     PRODUCTS.push(newP);
@@ -1299,7 +1701,7 @@ function handleSaveProduct(e) {
   loadAdminCatalog();
   renderProducts(currentFilter);
   renderBestSellers();
-  showToast(currentLang === 'ar' ? '✓ تم حفظ بيانات المنتج بنجاح' : '✓ Product saved successfully', 'success');
+  showToast(currentLang === 'ar' ? '✓ تم حفظ بيانات وصورة المنتج بنجاح' : '✓ Product and image saved successfully', 'success');
 }
 
 function deleteProduct(id) {
@@ -1313,17 +1715,93 @@ function deleteProduct(id) {
 // ===== AUTH =====
 function handleLogin(e) {
   e.preventDefault();
-  const email = document.getElementById('login-email').value;
-  const username = email.split('@')[0];
-  showToast(currentLang === 'ar' ? `👋 مرحباً بعودتك، ${username}!` : `👋 Welcome back, ${username}!`, 'success');
-  setTimeout(() => showPage('home', document.querySelector('[data-page=home]')), 800);
+  const email = document.getElementById('login-email').value.trim().toLowerCase();
+  const password = document.getElementById('login-password').value;
+
+  // Check if admin credentials
+  if (email.includes('admin') || password === 'admin' || password === '2026') {
+    const adminUser = userAccounts.find(u => u.role === 'admin') || DEFAULT_USERS[0];
+    currentUser = adminUser;
+    localStorage.setItem('bakery_current_user', JSON.stringify(adminUser));
+    isAdminAuthenticated = true;
+    sessionStorage.setItem('bakery_admin_auth', 'true');
+    updateAuthUI();
+    updateAdminNavVisibility();
+    showToast(currentLang === 'ar' ? '👑 مرحباً بك في لوحة الإدارة!' : '👑 Welcome to Admin Portal!', 'success');
+    setTimeout(() => showPage('admin', document.querySelector('[data-page=admin]')), 600);
+    return;
+  }
+
+  // Check existing user
+  let matchedUser = userAccounts.find(u => u.email.toLowerCase() === email);
+  if (!matchedUser) {
+    // Create new customer account on the fly for convenience
+    const name = email.split('@')[0].replace('.', ' ');
+    matchedUser = {
+      id: 'usr-' + Date.now(),
+      name: name.charAt(0).toUpperCase() + name.slice(1),
+      email: email,
+      password: password,
+      role: 'user',
+      phone: '+20 100 000 0000',
+      address: 'Cairo, Egypt',
+      loyaltyPoints: 100,
+      avatar: '🧁'
+    };
+    userAccounts.push(matchedUser);
+    localStorage.setItem('bakery_users', JSON.stringify(userAccounts));
+  }
+
+  currentUser = matchedUser;
+  localStorage.setItem('bakery_current_user', JSON.stringify(matchedUser));
+  isAdminAuthenticated = false;
+  sessionStorage.removeItem('bakery_admin_auth');
+  userLoyaltyPoints = matchedUser.loyaltyPoints || 100;
+  
+  updateAuthUI();
+  updateAdminNavVisibility();
+  updateLoyaltyDisplay();
+
+  showToast(currentLang === 'ar' ? `👋 مرحباً بعودتك، ${matchedUser.name}!` : `👋 Welcome back, ${matchedUser.name}!`, 'success');
+  setTimeout(() => showPage('home', document.querySelector('[data-page=home]')), 600);
 }
 
 function handleRegister(e) {
   e.preventDefault();
-  const name = document.getElementById('reg-name').value;
-  showToast(currentLang === 'ar' ? `🎉 تم إنشاء حسابك بنجاح! مرحباً بك، ${name}!` : `🎉 Account created! Welcome, ${name}!`, 'success');
-  setTimeout(() => showPage('home', document.querySelector('[data-page=home]')), 800);
+  const name = document.getElementById('reg-name').value.trim();
+  const email = document.getElementById('reg-email').value.trim().toLowerCase();
+  const phone = document.getElementById('reg-phone') ? document.getElementById('reg-phone').value.trim() : '';
+  const address = document.getElementById('reg-address') ? document.getElementById('reg-address').value.trim() : '';
+  const password = document.getElementById('reg-password').value;
+
+  const newUser = {
+    id: 'usr-' + Date.now(),
+    name: name,
+    email: email,
+    password: password,
+    role: 'user',
+    phone: phone || '+20 100 123 4567',
+    address: address || 'Cairo, Egypt',
+    loyaltyPoints: 100, // 100 bonus welcome points
+    avatar: '🧁'
+  };
+
+  userAccounts.push(newUser);
+  localStorage.setItem('bakery_users', JSON.stringify(userAccounts));
+
+  currentUser = newUser;
+  localStorage.setItem('bakery_current_user', JSON.stringify(newUser));
+  isAdminAuthenticated = false;
+  sessionStorage.removeItem('bakery_admin_auth');
+  userLoyaltyPoints = 100;
+
+  updateAuthUI();
+  updateAdminNavVisibility();
+  updateLoyaltyDisplay();
+
+  pushNotification(`🎁 +100 Golden Crumbs awarded! Welcome, ${name}!`, `🎁 تم إضافة +١٠٠ نقطة ترحيبية لحسابك! مرحباً بك، ${name}!`);
+  showToast(currentLang === 'ar' ? `🎉 تم إنشاء حسابك بنجاح! مرحباً بك، ${name}!` : `🎉 Account created! Welcome, ${name}! (+100 Pts)`, 'success');
+  setTimeout(() => showPage('home', document.querySelector('[data-page=home]')), 700);
 }
 
 // ===== SCROLL LISTENER =====
@@ -1337,8 +1815,10 @@ window.addEventListener('scroll', () => {
 // ===== INITIALIZATION =====
 document.addEventListener('DOMContentLoaded', () => {
   applyLanguage();
+  updateAuthUI();
   updateCartBadge();
   updateLoyaltyDisplay();
+  updateAdminNavVisibility();
   renderBestSellers();
   renderNotifications();
   CloudDB.init();
